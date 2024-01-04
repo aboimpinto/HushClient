@@ -1,0 +1,15 @@
+[submodule "Modules/Olimpo.BootstrapperManager"]
+	path = Modules/Olimpo.BootstrapperManager
+	url = git@github.com:aboimpinto/Olimpo.BootstrapperManager.git
+[submodule "Modules/Olimpo.EventAggregatorManager"]
+	path = Modules/Olimpo.EventAggregatorManager
+	url = git@github.com:aboimpinto/Olimpo.EventAggregatorManager.git
+[submodule "Modules/Olimpo.SigningManager"]
+	path = Modules/Olimpo.SigningManager
+	url = git@github.com:aboimpinto/Olimpo.SigningManager.git
+[submodule "Modules/Olimpo.EncryptingManager"]
+	path = Modules/Olimpo.EncryptingManager
+	url = git@github.com:aboimpinto/Olimpo.EncryptingManager.git
+[submodule "Modules/Olimpo.NavigationManager"]
+	path = Modules/Olimpo.NavigationManager
+	url = git@github.com:aboimpinto/Olimpo.NavigationManager.git

@@ -32,4 +32,11 @@ public partial class App : Application
 
         base.OnFrameworkInitializationCompleted();
     }
+
+    public override void RegisterServices()
+    {
+        
+
+        base.RegisterServices();
+    }
 }

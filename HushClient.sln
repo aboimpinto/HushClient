@@ -12,6 +12,20 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Directory.Build.props = Directory.Build.props
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{8B07C552-71D9-4203-8E02-9D46C478AE6B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BootstrapperManager", "Modules\Olimpo.BootstrapperManager\BootstrapperManager.csproj", "{9ECC225F-A930-444B-9F80-9064180D3F92}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EncryptingManager", "Modules\Olimpo.EncryptingManager\EncryptingManager.csproj", "{2307086F-9562-4F87-B988-BE50F44D35C7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventAggregatorManager", "Modules\Olimpo.EventAggregatorManager\EventAggregatorManager.csproj", "{81F73380-6E99-4B48-A201-07C620C74754}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SigningManager", "Modules\Olimpo.SigningManager\SigningManager.csproj", "{D72CCBC5-BEE3-43B0-A959-4E7A548C80F7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Olimpo.NavigationManager", "Olimpo.NavigationManager", "{6C236041-9785-414A-AE20-45FE2DEB7F5A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Olimpo.NavigationManager", "Modules\Olimpo.NavigationManager\Olimpo.NavigationManager\Olimpo.NavigationManager.csproj", "{235EEA77-31C0-478B-A5FC-6D73B91DC356}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,11 +40,39 @@ Global
 		{ABC31E74-02FF-46EB-B3B2-4E6AE43B456C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ABC31E74-02FF-46EB-B3B2-4E6AE43B456C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ABC31E74-02FF-46EB-B3B2-4E6AE43B456C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9ECC225F-A930-444B-9F80-9064180D3F92}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9ECC225F-A930-444B-9F80-9064180D3F92}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9ECC225F-A930-444B-9F80-9064180D3F92}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9ECC225F-A930-444B-9F80-9064180D3F92}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2307086F-9562-4F87-B988-BE50F44D35C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2307086F-9562-4F87-B988-BE50F44D35C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2307086F-9562-4F87-B988-BE50F44D35C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2307086F-9562-4F87-B988-BE50F44D35C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{81F73380-6E99-4B48-A201-07C620C74754}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81F73380-6E99-4B48-A201-07C620C74754}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81F73380-6E99-4B48-A201-07C620C74754}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81F73380-6E99-4B48-A201-07C620C74754}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D72CCBC5-BEE3-43B0-A959-4E7A548C80F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D72CCBC5-BEE3-43B0-A959-4E7A548C80F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D72CCBC5-BEE3-43B0-A959-4E7A548C80F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D72CCBC5-BEE3-43B0-A959-4E7A548C80F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{235EEA77-31C0-478B-A5FC-6D73B91DC356}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{235EEA77-31C0-478B-A5FC-6D73B91DC356}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{235EEA77-31C0-478B-A5FC-6D73B91DC356}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{235EEA77-31C0-478B-A5FC-6D73B91DC356}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {83CB65B8-011F-4ED7-BCD3-A6CFA935EF7E}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9ECC225F-A930-444B-9F80-9064180D3F92} = {8B07C552-71D9-4203-8E02-9D46C478AE6B}
+		{2307086F-9562-4F87-B988-BE50F44D35C7} = {8B07C552-71D9-4203-8E02-9D46C478AE6B}
+		{81F73380-6E99-4B48-A201-07C620C74754} = {8B07C552-71D9-4203-8E02-9D46C478AE6B}
+		{D72CCBC5-BEE3-43B0-A959-4E7A548C80F7} = {8B07C552-71D9-4203-8E02-9D46C478AE6B}
+		{6C236041-9785-414A-AE20-45FE2DEB7F5A} = {8B07C552-71D9-4203-8E02-9D46C478AE6B}
+		{235EEA77-31C0-478B-A5FC-6D73B91DC356} = {6C236041-9785-414A-AE20-45FE2DEB7F5A}
 	EndGlobalSection
 EndGlobal
