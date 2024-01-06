@@ -1,7 +1,7 @@
-﻿using ReactiveUI;
+﻿// using ReactiveUI;
 
-namespace HushClient.ViewModels;
+// namespace HushClient.ViewModels;
 
-public class ViewModelBase : ReactiveObject
-{
-}
+// public class ViewModelBase : ReactiveObject
+// {
+// }

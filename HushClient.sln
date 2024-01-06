@@ -26,6 +26,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Olimpo.NavigationManager", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Olimpo.NavigationManager", "Modules\Olimpo.NavigationManager\Olimpo.NavigationManager\Olimpo.NavigationManager.csproj", "{235EEA77-31C0-478B-A5FC-6D73B91DC356}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Olimpo.TcpClientManager", "Modules\Olimpo.TcpClientManager\Olimpo.TcpClientManager.csproj", "{AA2CBD4C-3590-4A1B-AAE2-2C32219C2EC7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -60,6 +62,10 @@ Global
 		{235EEA77-31C0-478B-A5FC-6D73B91DC356}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{235EEA77-31C0-478B-A5FC-6D73B91DC356}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{235EEA77-31C0-478B-A5FC-6D73B91DC356}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA2CBD4C-3590-4A1B-AAE2-2C32219C2EC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA2CBD4C-3590-4A1B-AAE2-2C32219C2EC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA2CBD4C-3590-4A1B-AAE2-2C32219C2EC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA2CBD4C-3590-4A1B-AAE2-2C32219C2EC7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -74,5 +80,6 @@ Global
 		{D72CCBC5-BEE3-43B0-A959-4E7A548C80F7} = {8B07C552-71D9-4203-8E02-9D46C478AE6B}
 		{6C236041-9785-414A-AE20-45FE2DEB7F5A} = {8B07C552-71D9-4203-8E02-9D46C478AE6B}
 		{235EEA77-31C0-478B-A5FC-6D73B91DC356} = {6C236041-9785-414A-AE20-45FE2DEB7F5A}
+		{AA2CBD4C-3590-4A1B-AAE2-2C32219C2EC7} = {8B07C552-71D9-4203-8E02-9D46C478AE6B}
 	EndGlobalSection
 EndGlobal
