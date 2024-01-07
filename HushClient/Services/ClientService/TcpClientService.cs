@@ -29,5 +29,10 @@ namespace HushClient.Services.ClientService
 
             return Task.CompletedTask;
         }
+
+        public void Send(string commandJson)
+        {
+            this._client.Channel.Send(commandJson);
+        }
     }
 }

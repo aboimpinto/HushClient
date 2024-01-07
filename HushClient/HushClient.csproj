@@ -27,5 +27,6 @@
     <ProjectReference Include="..\Modules\Olimpo.EventAggregatorManager\EventAggregatorManager.csproj" />
     <ProjectReference Include="..\Modules\Olimpo.BootstrapperManager\BootstrapperManager.csproj" />
     <ProjectReference Include="..\Modules\Olimpo.TcpClientManager\Olimpo.TcpClientManager.csproj" />
+    <ProjectReference Include="..\Modules\HushEcosystem.RpcModel\HushEcosystem.RpcModel.csproj" />
   </ItemGroup>
 </Project>

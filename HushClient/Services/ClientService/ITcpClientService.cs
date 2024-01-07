@@ -7,5 +7,7 @@ namespace HushClient.Services.ClientService
         void Stop();
 
         Task Start();
+
+        void Send(string commandJson);
     }
 }
