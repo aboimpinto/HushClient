@@ -45,10 +45,6 @@ public class HushClientWorkflow : IHushClientWorkflow
             .WithNodeAddressResonsabile("NodeAddressResonsabile")
             .Build();
 
-        // var jsonObject = handshakeRequest.ToJson();
-        // var compressObject = handshakeRequest.Compress(jsonObject);
-        // var uncompressObject = handshakeRequest.Decompress(compressObject);
-
         this._tcpClientService.Send(handshakeRequest.ToJson().Compress());
     }
 }
