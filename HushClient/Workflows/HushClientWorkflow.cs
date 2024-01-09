@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
-using HushClient.Services.ClientService;
+using HushClient.ApplicationSettings;
+using HushClient.TcpClient;
 using HushEcosystem.RpcModel;
 using HushEcosystem.RpcModel.GlobalEvents;
 using HushEcosystem.RpcModel.Handshake;
@@ -13,17 +14,20 @@ public class HushClientWorkflow :
     IHushClientWorkflow,
     IHandle<HandshakeResponseEvent>
 {
+    private readonly IApplicationSettingsManager _applicationSettingsManager;
     private readonly ITcpClientService _tcpClientService;
     private readonly IBootstrapperManager _bootstrapperManager;
     private readonly IEventAggregator _eventAggregator;
     private readonly ILogger<HushClientWorkflow> _logger;
 
     public HushClientWorkflow(
+        IApplicationSettingsManager applicationSettingsManager,
         ITcpClientService tcpClientService,
         IBootstrapperManager bootstrapperManager,
         IEventAggregator eventAggregator,
         ILogger<HushClientWorkflow> logger)
     {
+        this._applicationSettingsManager = applicationSettingsManager;
         this._tcpClientService = tcpClientService;
         this._bootstrapperManager = bootstrapperManager;
         this._eventAggregator = eventAggregator;
@@ -48,7 +52,7 @@ public class HushClientWorkflow :
     private void InitiateHandShake()
     {
         var handshakeRequest = new HandshakeRequestBuilder()
-            .WithClientType(HushEcosystem.RpcModel.ClientType.ClientNode)
+            .WithClientType(ClientType.ClientNode)
             .WithNodeId("nodeId")
             .WithNodeAddressResonsabile("NodeAddressResonsabile")
             .Build();
@@ -62,6 +66,8 @@ public class HushClientWorkflow :
         {
             // Handshake accepted
 
+            // Request all transactions since last sync for the address
+            var lastHeightSynched = this._applicationSettingsManager.BlockchainInfo.LastHeightSynched;
         }
         else
         {

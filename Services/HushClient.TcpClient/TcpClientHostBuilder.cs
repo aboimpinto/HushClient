@@ -1,7 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
+using HushClient.TcpClient;
 using Olimpo;
 
-namespace HushClient.Services.ClientService;
+namespace HushClient;
 
 public static class TcpClientHostBuilder
 {

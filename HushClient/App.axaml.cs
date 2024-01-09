@@ -1,7 +1,6 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using HushClient.Services.ClientService;
 using HushClient.Views;
 using Microsoft.Extensions.DependencyInjection;
 using Olimpo;
@@ -55,7 +54,8 @@ public partial class App : Application
             .RegisterTcpClientManager()
             .RegisterTcpClientService()
             .RegisterHushClientServices()
-            .RegisterRpcModel();
+            .RegisterRpcModel()
+            .RegisterApplicationSettings();
 
         ServiceCollectionManager.SetServiceProvider(serviceCollection);
 

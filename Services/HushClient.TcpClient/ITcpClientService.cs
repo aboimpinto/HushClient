@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace HushClient.Services.ClientService
+namespace HushClient.TcpClient
 {
     public interface ITcpClientService
     {

@@ -7,7 +7,7 @@ using HushEcosystem.RpcModel.CommandDeserializeStrategies;
 using Microsoft.Extensions.Logging;
 using Olimpo.TcpClientManager;
 
-namespace HushClient.Services.ClientService
+namespace HushClient.TcpClient
 {
     public class TcpClientService : ITcpClientService
     {

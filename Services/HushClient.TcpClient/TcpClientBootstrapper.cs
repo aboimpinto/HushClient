@@ -1,8 +1,7 @@
 using System.Reactive.Subjects;
-using System.Threading.Tasks;
 using Olimpo;
 
-namespace HushClient.Services.ClientService
+namespace HushClient.TcpClient
 {
     public class TcpClientBootstrapper : IBootstrapper
     {

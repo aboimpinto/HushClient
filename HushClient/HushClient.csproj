@@ -28,5 +28,7 @@
     <ProjectReference Include="..\Modules\Olimpo.BootstrapperManager\BootstrapperManager.csproj" />
     <ProjectReference Include="..\Modules\Olimpo.TcpClientManager\Olimpo.TcpClientManager.csproj" />
     <ProjectReference Include="..\Modules\HushEcosystem.RpcModel\HushEcosystem.RpcModel.csproj" />
+    <ProjectReference Include="..\Services\HushClient.TcpClient\HushClient.TcpClientService.csproj" />
+    <ProjectReference Include="..\Services\HushClient.ApplicationSettings\HushClient.ApplicationSettings.csproj" />
   </ItemGroup>
 </Project>
