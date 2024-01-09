@@ -13,6 +13,11 @@ public class Client : IClient
 
     public Subject<DataReceivedArgs> DataReceived { get; }
 
+    public Client()
+    {
+        this.DataReceived = new Subject<DataReceivedArgs>();
+    }
+
     public Task Start(string address, int port)
     {
         try

@@ -6,6 +6,7 @@ using HushClient.Views;
 using Microsoft.Extensions.DependencyInjection;
 using Olimpo;
 using Olimpo.NavigationManager;
+using HushEcosystem;
 
 namespace HushClient;
 
@@ -53,7 +54,8 @@ public partial class App : Application
             .RegisterNavigationManager()
             .RegisterTcpClientManager()
             .RegisterTcpClientService()
-            .RegisterHushClientServices();
+            .RegisterHushClientServices()
+            .RegisterRpcModel();
 
         ServiceCollectionManager.SetServiceProvider(serviceCollection);
 
