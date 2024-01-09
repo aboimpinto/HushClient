@@ -5,6 +5,7 @@ using HushClient.TcpClient;
 using HushEcosystem.RpcModel;
 using HushEcosystem.RpcModel.GlobalEvents;
 using HushEcosystem.RpcModel.Handshake;
+using HushEcosystem.RpcModel.Transactions;
 using Microsoft.Extensions.Logging;
 using Olimpo;
 
@@ -67,7 +68,12 @@ public class HushClientWorkflow :
             // Handshake accepted
 
             // Request all transactions since last sync for the address
-            var lastHeightSynched = this._applicationSettingsManager.BlockchainInfo.LastHeightSynched;
+            var lastTransactionsCommand = new TransationsWithAddressRequestBuilder()
+                .WithAddress(this._applicationSettingsManager.UserInfo.PublicSigningAddress)
+                .WithLastHeightSynched(this._applicationSettingsManager.BlockchainInfo.LastHeightSynched)
+                .Build();
+
+            this._tcpClientService.Send(lastTransactionsCommand.ToJson().Compress());
         }
         else
         {
