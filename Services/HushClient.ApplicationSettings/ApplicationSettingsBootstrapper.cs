@@ -22,9 +22,10 @@ public class ApplicationSettingsBootstrapper : IBootstrapper
     {
     }
 
-    public Task Startup()
+    public async Task Startup()
     {
+        await this._applicationSettingsManager.LoadSettingsAsync();
+
         this.BootstrapFinished.OnNext(true);
-        return Task.CompletedTask;
     }
 }
