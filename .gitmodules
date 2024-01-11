@@ -13,3 +13,6 @@
 [submodule "Modules/Olimpo.NavigationManager"]
 	path = Modules/Olimpo.NavigationManager
 	url = git@github.com:aboimpinto/Olimpo.NavigationManager.git
+[submodule "Modules/HushEcosystem.Model"]
+	path = Modules/HushEcosystem.Model
+	url = git@github.com:aboimpinto/HushEcosystem.Model.git

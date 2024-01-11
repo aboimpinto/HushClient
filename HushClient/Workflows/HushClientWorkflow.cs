@@ -2,12 +2,13 @@ using System;
 using System.Threading.Tasks;
 using HushClient.ApplicationSettings;
 using HushClient.TcpClient;
-using HushEcosystem.RpcModel;
-using HushEcosystem.RpcModel.GlobalEvents;
-using HushEcosystem.RpcModel.Handshake;
-using HushEcosystem.RpcModel.Transactions;
+using HushEcosystem.Model.Rpc.GlobalEvents;
+using HushEcosystem;
 using Microsoft.Extensions.Logging;
 using Olimpo;
+using HushEcosystem.Model.Rpc.Handshake;
+using HushEcosystem.Model.Rpc;
+using HushEcosystem.Model.Rpc.Transactions;
 
 namespace HushClient.Workflows;
 

@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using HushEcosystem.RpcModel;
-using HushEcosystem.RpcModel.CommandDeserializeStrategies;
+using HushEcosystem;
+using HushEcosystem.Model.Rpc.CommandDeserializeStrategies;
 using Microsoft.Extensions.Logging;
 using Olimpo.TcpClientManager;
 
