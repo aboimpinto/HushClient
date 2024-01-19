@@ -58,19 +58,25 @@ public class Channel : IDisposable
 
     private void StartReadingStream(object obj)
     {
-        byte[] buffer = new byte[256];;
+        byte[] buffer = new byte[1024];
         string data;
-        var position = 0;
 
         var stream = (NetworkStream)obj;
 
-        while(true)
+        while(stream.CanRead)
         {
-            while((position = stream.Read(buffer, 0, buffer.Length)) != 0)
+            using (var ms = new MemoryStream())
             {
-                data = Encoding.UTF8.GetString(buffer, 0, position);
+                do
+                {
+                    var numberOfBytesRead = stream.Read(buffer, 0, buffer.Length);
+                    ms.Write(buffer, 0, numberOfBytesRead);
+
+                } while(stream.DataAvailable);
+
+                data = Encoding.ASCII.GetString(ms.ToArray(), 0, (int)ms.Length);
                 this._client.DataReceived?.OnNext(new DataReceivedArgs(data));
             }
-        }        
+        }
     }
 }
