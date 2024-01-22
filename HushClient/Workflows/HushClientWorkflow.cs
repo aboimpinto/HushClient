@@ -9,18 +9,22 @@ using Olimpo;
 using HushEcosystem.Model.Rpc.Handshake;
 using HushEcosystem.Model.Rpc;
 using HushEcosystem.Model.Rpc.Transactions;
+using HushEcosystem.Model.Rpc.GlobalEvents.Blockchain;
 
 namespace HushClient.Workflows;
 
 public class HushClientWorkflow : 
     IHushClientWorkflow,
-    IHandle<HandshakeResponseEvent>
+    IHandle<HandshakeResponseEvent>,
+    IHandle<TransactionsWithAddressResponseEvent>
 {
     private readonly IApplicationSettingsManager _applicationSettingsManager;
     private readonly ITcpClientService _tcpClientService;
     private readonly IBootstrapperManager _bootstrapperManager;
     private readonly IEventAggregator _eventAggregator;
     private readonly ILogger<HushClientWorkflow> _logger;
+
+    private bool _isSyncing;
 
     public HushClientWorkflow(
         IApplicationSettingsManager applicationSettingsManager,
@@ -68,18 +72,28 @@ public class HushClientWorkflow :
         {
             // Handshake accepted
 
-            // Request all transactions since last sync for the address
-            var lastTransactionsCommand = new TransationsWithAddressRequestBuilder()
-                .WithAddress(this._applicationSettingsManager.UserInfo.PublicSigningAddress)
-                .WithLastHeightSynched(this._applicationSettingsManager.BlockchainInfo.LastHeightSynched)
-                .Build();
+            this._isSyncing = true;
+            // Request the height of the blockchain
+            var blockchainHeight = new BlockchainHeightRequest();
+            this._tcpClientService.Send(blockchainHeight.ToJson().Compress());
 
-            this._tcpClientService.Send(lastTransactionsCommand.ToJson().Compress());
+            // Request all transactions since last sync for the address
+            // var lastTransactionsCommand = new TransationsWithAddressRequestBuilder()
+            //     .WithAddress(this._applicationSettingsManager.UserInfo.PublicSigningAddress)
+            //     .WithLastHeightSynched(this._applicationSettingsManager.BlockchainInfo.LastHeightSynched)
+            //     .Build();
+
+            // this._tcpClientService.Send(lastTransactionsCommand.ToJson().Compress());
         }
         else
         {
             // Handshake not accepted
             // TODO [AboimPinto] Need to implement in case the Handshake is not implemented.
         }
+    }
+
+    public void Handle(TransactionsWithAddressResponseEvent message)
+    {
+        
     }
 }
