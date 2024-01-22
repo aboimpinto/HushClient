@@ -8,8 +8,7 @@ using Microsoft.Extensions.Logging;
 using Olimpo;
 using HushEcosystem.Model.Rpc.Handshake;
 using HushEcosystem.Model.Rpc;
-using HushEcosystem.Model.Rpc.Transactions;
-using HushEcosystem.Model.Rpc.GlobalEvents.Blockchain;
+using HushEcosystem.Model.Rpc.Blockchain;
 
 namespace HushClient.Workflows;
 
