@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using HushClient.Model;
 using HushClient.Workflows;
 using Olimpo;
 using Olimpo.NavigationManager;
@@ -17,6 +18,9 @@ public class MainViewModel :
     private readonly IEventAggregator _eventAggregator;
     private ViewModelBase _currentOperation;
 
+    public BlockchainInformation BlockchainInformation { get; private set; }
+    public LocalInformation LocalInformation { get; private set; }
+
     public ViewModelBase CurrentOperation 
     { 
         get => this._currentOperation; 
@@ -24,10 +28,14 @@ public class MainViewModel :
     }
 
     public MainViewModel(
+        BlockchainInformation blockchainInformation,
+        LocalInformation localInformation,
         INavigationManager navigationManager,
         IHushClientWorkflow hushClientWorkflow,
         IEventAggregator eventAggregator)
     {
+        this.BlockchainInformation = blockchainInformation;
+        this.LocalInformation = localInformation;
         this._navigationManager = navigationManager;
         this._hushClientWorkflow = hushClientWorkflow;
         this._eventAggregator = eventAggregator;

@@ -6,6 +6,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Olimpo;
 using Olimpo.NavigationManager;
 using HushEcosystem;
+using HushClient.ApplicationSettings.Model;
+using HushClient.Model;
+using HushClient.ViewModels;
 
 namespace HushClient;
 
@@ -56,6 +59,11 @@ public partial class App : Application
             .RegisterHushClientServices()
             .RegisterRpcModel()
             .RegisterApplicationSettings();
+
+        serviceCollection.AddSingleton<BlockchainInformation>();
+        serviceCollection.AddSingleton<LocalInformation>();
+
+        serviceCollection.AddScoped<ViewModelBase, BalanceViewModel>("BalanceViewModel");
 
         ServiceCollectionManager.SetServiceProvider(serviceCollection);
 
