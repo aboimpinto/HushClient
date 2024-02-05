@@ -6,8 +6,13 @@
   mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
   x:Class="HushClient.Views.BalanceView">
   
-  <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-    <TextBlock Text="{Binding BlockchainInformation.BlockchainHeight}" />
-    <TextBlock Text="{Binding LocalInformation.LastHeightSynched}" />
-  </StackPanel>
+  <Grid RowDefinitions="100 * 80">
+    <StackPanel Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+      <TextBlock Text="{Binding BlockchainInformation.BlockchainHeight}" />
+      <TextBlock Text=" / " />
+      <TextBlock Text="{Binding LocalInformation.LastHeightSynched}" />
+    </StackPanel>
+  </Grid>
+
+  
 </UserControl>
