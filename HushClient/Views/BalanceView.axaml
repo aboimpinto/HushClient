@@ -7,6 +7,11 @@
   x:Class="HushClient.Views.BalanceView">
   
   <Grid RowDefinitions="100 * 80">
+    <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+      <TextBlock Text="Balance: " />
+      <TextBlock Text="{Binding LocalInformation.Balance}" />
+    </StackPanel>
+
     <StackPanel Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
       <TextBlock Text="{Binding BlockchainInformation.BlockchainHeight}" />
       <TextBlock Text=" / " />

@@ -17,9 +17,10 @@ namespace HushClient.Workflows;
 
 public class HushClientWorkflow : 
     IHushClientWorkflow,
-    IHandleAsync<HandshakeResponseEvent>,
-    IHandle<BlockchainHeightResponseEvent>,
-    IHandle<TransactionsWithAddressResponseEvent>
+    IHandleAsync<HandshakeRespondedEvent>,
+    IHandle<BlockchainHeightRespondedEvent>,
+    IHandle<TransactionsWithAddressRespondedEvent>,
+    IHandle<BalanceByAddressRespondedEvent>
 {
     private readonly IApplicationSettingsManager _applicationSettingsManager;
     private readonly ITcpClientService _tcpClientService;
@@ -80,7 +81,7 @@ public class HushClientWorkflow :
         this._tcpClientService.Send(handshakeRequest.ToJson().Compress());
     }
 
-    public async Task HandleAsync(HandshakeResponseEvent message)
+    public async Task HandleAsync(HandshakeRespondedEvent message)
     {
         if (message.HandshakeResponse.Result)
         {
@@ -89,8 +90,8 @@ public class HushClientWorkflow :
 
             this._localInformation.IsSynching = true;
             // Request the height of the blockchain
-            var blockchainHeight = new BlockchainHeightRequest();
-            this._tcpClientService.Send(blockchainHeight.ToJson().Compress());
+            var blockchainHeightRequest = new BlockchainHeightRequest();
+            this._tcpClientService.Send(blockchainHeightRequest.ToJson().Compress());
         }
         else
         {
@@ -99,7 +100,7 @@ public class HushClientWorkflow :
         }
     }
 
-    public void Handle(BlockchainHeightResponseEvent message)
+    public void Handle(BlockchainHeightRespondedEvent message)
     {
         if (this._blockchainInformation.BlockchainHeight == message.BlockchainHeightResponse.Height)
         {
@@ -116,24 +117,35 @@ public class HushClientWorkflow :
             this._blockchainInformation.BlockchainHeight = message.BlockchainHeightResponse.Height;
 
             // Request all transactions since last sync for the address
-            var lastTransactionsCommand = new TransationsWithAddressRequestBuilder()
+            var lastTransactionsRequest = new TransationsWithAddressRequestBuilder()
                 .WithAddress(this._applicationSettingsManager.UserInfo.PublicSigningAddress)
                 .WithLastHeightSynched(this._applicationSettingsManager.BlockchainInfo.LastHeightSynched)
                 .Build();
 
-            this._tcpClientService.Send(lastTransactionsCommand.ToJson().Compress());
+            this._tcpClientService.Send(lastTransactionsRequest.ToJson().Compress());
         }
 
     }
 
-    public void Handle(TransactionsWithAddressResponseEvent message)
+    public void Handle(TransactionsWithAddressRespondedEvent message)
     {
         foreach (var item in message.TransactionsWithAddressResponse.Transactions)
         {
             this._localInformation.LastHeightSynched = item.BlockHeight;
         }
 
-        var blockchainHeight = new BlockchainHeightRequest();
-        this._tcpClientService.Send(blockchainHeight.ToJson().Compress());
+        var blockchainHeightRequest = new BlockchainHeightRequest();
+        this._tcpClientService.Send(blockchainHeightRequest.ToJson().Compress());
+
+        var BalanceByAddressRequest = new BalanceByAddressRequestBuilder()
+            .WithAddress(this._applicationSettingsManager.UserInfo.PublicSigningAddress)
+            .Build();
+
+        this._tcpClientService.Send(BalanceByAddressRequest.ToJson().Compress());
+    }
+
+    public void Handle(BalanceByAddressRespondedEvent message)
+    {
+        this._localInformation.Balance = message.BalanceByAddressResponse.Balance;
     }
 }

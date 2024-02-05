@@ -6,6 +6,7 @@ public class LocalInformation : ReactiveObject
 {
     private double _lastHeightSynched;
     private bool _isSynching;
+    private double _balance;
 
     public double LastHeightSynched 
     { 
@@ -17,5 +18,11 @@ public class LocalInformation : ReactiveObject
     {
         get => this._isSynching; 
         set => this.RaiseAndSetIfChanged(ref this._isSynching, value); 
+    }
+
+    public double Balance 
+    { 
+        get => this._balance; 
+        set => this.RaiseAndSetIfChanged(ref this._balance, value); 
     }
 }
