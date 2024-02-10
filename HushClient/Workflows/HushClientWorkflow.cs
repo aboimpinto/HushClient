@@ -12,6 +12,7 @@ using HushEcosystem.Model.Rpc.Blockchain;
 using HushEcosystem.Model.Rpc.Transactions;
 using HushClient.Model;
 using Olimpo.NavigationManager;
+using HushEcosystem.Model;
 
 namespace HushClient.Workflows;
 
@@ -29,6 +30,7 @@ public class HushClientWorkflow :
     private readonly LocalInformation _localInformation;
     private readonly INavigationManager _navigationManager;
     private readonly IEventAggregator _eventAggregator;
+    private readonly TransactionBaseConverter _transactionBaseConverter;
     private readonly ILogger<HushClientWorkflow> _logger;
 
     // private double _blockchainHeight;
@@ -43,6 +45,7 @@ public class HushClientWorkflow :
         LocalInformation localInformation,
         INavigationManager navigationManager,
         IEventAggregator eventAggregator,
+        TransactionBaseConverter transactionBaseConverter,
         ILogger<HushClientWorkflow> logger)
     {
         this._applicationSettingsManager = applicationSettingsManager;
@@ -52,6 +55,7 @@ public class HushClientWorkflow :
         this._localInformation = localInformation;
         this._navigationManager = navigationManager;
         this._eventAggregator = eventAggregator;
+        this._transactionBaseConverter = transactionBaseConverter;
         this._logger = logger;
 
         this._eventAggregator.Subscribe(this);
@@ -78,7 +82,7 @@ public class HushClientWorkflow :
             .WithNodeAddressResonsabile("NodeAddressResonsabile")
             .Build();
 
-        this._tcpClientService.Send(handshakeRequest.ToJson().Compress());
+        this._tcpClientService.Send(handshakeRequest.ToJson(this._transactionBaseConverter).Compress());
     }
 
     public async Task HandleAsync(HandshakeRespondedEvent message)
@@ -91,7 +95,7 @@ public class HushClientWorkflow :
             this._localInformation.IsSynching = true;
             // Request the height of the blockchain
             var blockchainHeightRequest = new BlockchainHeightRequest();
-            this._tcpClientService.Send(blockchainHeightRequest.ToJson().Compress());
+            this._tcpClientService.Send(blockchainHeightRequest.ToJson(this._transactionBaseConverter).Compress());
         }
         else
         {
@@ -109,7 +113,7 @@ public class HushClientWorkflow :
 
             Task.Delay(3000);
             var blockchainHeight = new BlockchainHeightRequest();
-            this._tcpClientService.Send(blockchainHeight.ToJson().Compress());
+            this._tcpClientService.Send(blockchainHeight.ToJson(this._transactionBaseConverter).Compress());
         }
         else
         {
@@ -122,26 +126,29 @@ public class HushClientWorkflow :
                 .WithLastHeightSynched(this._applicationSettingsManager.BlockchainInfo.LastHeightSynched)
                 .Build();
 
-            this._tcpClientService.Send(lastTransactionsRequest.ToJson().Compress());
+            this._tcpClientService.Send(lastTransactionsRequest.ToJson(this._transactionBaseConverter).Compress());
         }
 
     }
 
     public void Handle(TransactionsWithAddressRespondedEvent message)
     {
-        foreach (var item in message.TransactionsWithAddressResponse.Transactions)
+        if (message.TransactionsWithAddressResponse != null && message.TransactionsWithAddressResponse.Transactions != null)
         {
-            this._localInformation.LastHeightSynched = item.BlockHeight;
+            foreach (var item in message.TransactionsWithAddressResponse.Transactions)
+            {
+                this._localInformation.LastHeightSynched = item.BlockIndex;
+            }
         }
 
         var blockchainHeightRequest = new BlockchainHeightRequest();
-        this._tcpClientService.Send(blockchainHeightRequest.ToJson().Compress());
+        this._tcpClientService.Send(blockchainHeightRequest.ToJson(this._transactionBaseConverter).Compress());
 
         var BalanceByAddressRequest = new BalanceByAddressRequestBuilder()
             .WithAddress(this._applicationSettingsManager.UserInfo.PublicSigningAddress)
             .Build();
 
-        this._tcpClientService.Send(BalanceByAddressRequest.ToJson().Compress());
+        this._tcpClientService.Send(BalanceByAddressRequest.ToJson(this._transactionBaseConverter).Compress());
     }
 
     public void Handle(BalanceByAddressRespondedEvent message)
