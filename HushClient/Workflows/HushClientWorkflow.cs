@@ -13,6 +13,9 @@ using HushEcosystem.Model.Rpc.Transactions;
 using HushClient.Model;
 using Olimpo.NavigationManager;
 using HushEcosystem.Model;
+using HushEcosystem.Model.Builders;
+using HushEcosystem.Model.Blockchain;
+using HushEcosystem.Model.Rpc.Feeds;
 
 namespace HushClient.Workflows;
 
@@ -32,10 +35,6 @@ public class HushClientWorkflow :
     private readonly IEventAggregator _eventAggregator;
     private readonly TransactionBaseConverter _transactionBaseConverter;
     private readonly ILogger<HushClientWorkflow> _logger;
-
-    // private double _blockchainHeight;
-    // private double _lastBlockHeightProcessed;
-    // private bool _isSyncing;
 
     public HushClientWorkflow(
         IApplicationSettingsManager applicationSettingsManager,
@@ -59,6 +58,32 @@ public class HushClientWorkflow :
         this._logger = logger;
 
         this._eventAggregator.Subscribe(this);
+
+        this._localInformation.IsSynchingStream.Subscribe(x => 
+        {
+            if (x)
+            {
+                this._logger.LogInformation("Blockain synched...");
+
+                var feedEncryptionKeys = new EncryptKeys();
+
+                var personalFeed =  new FeedBuilder()
+                    .WithFeedOwner(this._applicationSettingsManager.UserInfo.PublicSigningAddress)
+                    .WithFeedType(FeedTypeEnum.Personal)
+                    .WithPublicEncriptAddress(feedEncryptionKeys.PublicKey)
+                    .WithPrivateEncriptAddress(feedEncryptionKeys.PrivateKey)
+                    .Build();
+
+                personalFeed.HashObject(this._transactionBaseConverter);
+                personalFeed.Sign(this._applicationSettingsManager.UserInfo.PublicSigningAddress, this._transactionBaseConverter);
+
+                var newFeedRequest = new NewFeedRequest
+                {
+                    Feed = personalFeed
+                };
+                this._tcpClientService.Send(newFeedRequest.ToJson(this._transactionBaseConverter).Compress());
+            }
+        });
     }
 
     public async Task Start()

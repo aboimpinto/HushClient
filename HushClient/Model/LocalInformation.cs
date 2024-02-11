@@ -1,3 +1,4 @@
+using System.Reactive.Subjects;
 using ReactiveUI;
 
 namespace HushClient.Model;
@@ -8,6 +9,8 @@ public class LocalInformation : ReactiveObject
     private bool _isSynching;
     private double _balance;
 
+    public Subject<bool> IsSynchingStream { get; set; } = new Subject<bool>();
+
     public double LastHeightSynched 
     { 
         get => this._lastHeightSynched; 
@@ -17,7 +20,11 @@ public class LocalInformation : ReactiveObject
     public bool IsSynching 
     {
         get => this._isSynching; 
-        set => this.RaiseAndSetIfChanged(ref this._isSynching, value); 
+        set 
+        {
+            this.RaiseAndSetIfChanged(ref this._isSynching, value); 
+            this.IsSynchingStream.OnNext(value);
+        }
     }
 
     public double Balance 

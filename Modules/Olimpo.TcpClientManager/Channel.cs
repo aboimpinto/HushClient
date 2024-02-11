@@ -58,7 +58,7 @@ public class Channel : IDisposable
 
     private void StartReadingStream(object obj)
     {
-        byte[] buffer = new byte[1024];
+        byte[] buffer = new byte[4096];     // Be able to receive 4MBytes of data
         string data;
 
         var stream = (NetworkStream)obj;
