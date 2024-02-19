@@ -1,4 +1,7 @@
+using System.Collections;
+using System.Collections.Generic;
 using System.Reactive.Subjects;
+using HushEcosystem.Model.Blockchain;
 using ReactiveUI;
 
 namespace HushClient.Model;
@@ -32,4 +35,6 @@ public class LocalInformation : ReactiveObject
         get => this._balance; 
         set => this.RaiseAndSetIfChanged(ref this._balance, value); 
     }
+
+    public IList<Feed> SubscribedFeeds { get; set; } = [];
 }

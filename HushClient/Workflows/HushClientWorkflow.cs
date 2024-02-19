@@ -19,6 +19,7 @@ using HushEcosystem.Model.GlobalEvents;
 using System.Collections.Generic;
 using HushEcosystem.Model.Blockchain.TransactionHandlerStrategies;
 using System.Linq;
+using HushClient.GlobalEvents;
 
 namespace HushClient.Workflows;
 
@@ -27,7 +28,8 @@ public class HushClientWorkflow :
     IHandleAsync<HandshakeRespondedEvent>,
     IHandle<BlockchainHeightRespondedEvent>,
     IHandle<TransactionsWithAddressRespondedEvent>,
-    IHandleAsync<BalanceByAddressRespondedEvent>
+    IHandleAsync<BalanceByAddressRespondedEvent>,
+    IHandleAsync<FeedTransactionHandledEvent>
 {
     private readonly IApplicationSettingsManager _applicationSettingsManager;
     private readonly ITcpClientService _tcpClientService;
@@ -41,6 +43,7 @@ public class HushClientWorkflow :
     private readonly ILogger<HushClientWorkflow> _logger;
 
     private bool _ownFeedFound = false;
+    private IList<Feed> _feeds = [];
 
     public HushClientWorkflow(
         IApplicationSettingsManager applicationSettingsManager,
@@ -221,5 +224,18 @@ public class HushClientWorkflow :
 
         var blockchainHeight = new BlockchainHeightRequest();
         this._tcpClientService.Send(blockchainHeight.ToJson(sendTransactionJsonOptions).Compress());
+    }
+
+    public async Task HandleAsync(FeedTransactionHandledEvent message)
+    {
+        if (this._localInformation.SubscribedFeeds.Any(x => x.FeedId == message.Feed.FeedId))
+        {
+            // Feed already exists
+            // TODO [AboimPinto] Need to implement in case the Feed already exists.
+            return;
+        }
+
+        this._localInformation.SubscribedFeeds.Add(message.Feed);
+        await this._eventAggregator.PublishAsync(new RefreshFeedsEvent());
     }
 }
