@@ -4,7 +4,7 @@
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-  x:Class="HushClient.Views.BalanceView">
+  x:Class="HushClient.Views.FeedView">
   
   <Grid RowDefinitions="100 * 80">
     <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
@@ -12,37 +12,27 @@
       <TextBlock Text="{Binding LocalInformation.Balance}" />
     </StackPanel>
 
+    <!-- 
     <ItemsControl Grid.Row="1" ItemsSource="{Binding SubscribedFeeds}">
       <ItemsControl.ItemTemplate>
         <DataTemplate>
-          
-            <Grid RowDefinitions="* 5">
-              <Button 
-                Grid.Row="0"
-                Command="{Binding $parent[ItemsControl].DataContext.FeedSelectCommand}" 
-                CommandParameter="{Binding}"
-                HorizontalAlignment="Stretch">
+          <Border 
+            Background="Gainsboro" 
+            BorderBrush="Black"
+            BorderThickness="2"
+            CornerRadius="3"
+            Padding="10"
+            Margin="5">
 
-                <Button.Template>
-                  <ControlTemplate>
-                    <Border Background="#14507D" CornerRadius="3" Padding="5">
-
-                      <Grid ColumnDefinitions="5 * 64" RowDefinitions="* 15">
-                        <TextBlock
-                          Grid.Column="1" 
-                          Grid.Row="1"  
-                          Text="{Binding PublicAddressView}" 
-                          Foreground="Black"  />
-                      </Grid>
-
-                    </Border>
-                  </ControlTemplate>
-                </Button.Template>
-              </Button>
-            </Grid>
+            <StackPanel Orientation="Vertical">
+              <TextBlock Text="{Binding FeedType}" />
+              <TextBlock Text="{Binding PublicAddressView}" />
+            </StackPanel>
+          </Border>
         </DataTemplate>
       </ItemsControl.ItemTemplate>
-    </ItemsControl>
+    </ItemsControl> 
+    -->
 
     <StackPanel Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
       <TextBlock Text="{Binding BlockchainInformation.BlockchainHeight}" />
@@ -51,5 +41,4 @@
     </StackPanel>
   </Grid>
 
-  
 </UserControl>

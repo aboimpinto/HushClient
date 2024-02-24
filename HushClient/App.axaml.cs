@@ -64,6 +64,7 @@ public partial class App : Application
         serviceCollection.AddSingleton<LocalInformation>();
 
         serviceCollection.AddScoped<ViewModelBase, BalanceViewModel>("BalanceViewModel");
+        serviceCollection.AddScoped<ViewModelBase, FeedViewModel>("FeedViewModel");
 
         ServiceCollectionManager.SetServiceProvider(serviceCollection);
 

@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reactive;
 using HushClient.GlobalEvents;
 using HushClient.Model;
 using HushEcosystem.Model.Blockchain;
 using Olimpo;
 using Olimpo.NavigationManager;
-using Org.BouncyCastle.Math.EC.Rfc7748;
 using ReactiveUI;
 
 namespace HushClient.ViewModels;
@@ -19,6 +19,8 @@ public class BalanceViewModel :
     public LocalInformation LocalInformation { get; }
 
     public ObservableCollection<SubscribedFeed> SubscribedFeeds { get; }
+    public ReactiveCommand<SubscribedFeed, Unit> FeedSelectCommand { get; }
+
 
     public BalanceViewModel(
         BlockchainInformation blockchainInformation, 
@@ -31,6 +33,12 @@ public class BalanceViewModel :
         eventAggregator.Subscribe(this);
 
         this.SubscribedFeeds = new ObservableCollection<SubscribedFeed>();
+        this.FeedSelectCommand = ReactiveCommand.Create<SubscribedFeed>(this.OnFeedSelect);
+    }
+
+    private void OnFeedSelect(SubscribedFeed subscribedFeed)
+    {
+
     }
 
     public void Handle(RefreshFeedsEvent message)
