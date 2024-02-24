@@ -15,6 +15,8 @@ public class BalanceViewModel :
     ViewModelBase,
     IHandle<RefreshFeedsEvent>
 {
+    private readonly INavigationManager _navigationManager;
+
     public BlockchainInformation BlockchainInformation { get; }
     public LocalInformation LocalInformation { get; }
 
@@ -25,11 +27,12 @@ public class BalanceViewModel :
     public BalanceViewModel(
         BlockchainInformation blockchainInformation, 
         LocalInformation localInformation,
+        INavigationManager navigationManager,
         IEventAggregator eventAggregator)
     {
-        BlockchainInformation = blockchainInformation;
-        LocalInformation = localInformation;
-
+        this.BlockchainInformation = blockchainInformation;
+        this.LocalInformation = localInformation;
+        this._navigationManager = navigationManager;
         eventAggregator.Subscribe(this);
 
         this.SubscribedFeeds = new ObservableCollection<SubscribedFeed>();
@@ -38,7 +41,12 @@ public class BalanceViewModel :
 
     private void OnFeedSelect(SubscribedFeed subscribedFeed)
     {
+        var navigateParameters = new Dictionary<string, object>
+        {
+            { "SelectedSubcibedFeed", subscribedFeed }
+        };
 
+        this._navigationManager.NavigateAsync("FeedViewModel", navigateParameters);
     }
 
     public void Handle(RefreshFeedsEvent message)
