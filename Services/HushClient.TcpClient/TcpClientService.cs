@@ -34,6 +34,11 @@ namespace HushClient.TcpClient
 
             this._client.DataReceived.Subscribe(x => 
             {
+                if (string.IsNullOrWhiteSpace(x.Message))
+                {
+                    return;
+                }
+
                 var decompressedMessage = x.Message.Decompress();
 
                 var commandStrategy = this._strategies.SingleOrDefault(x => x.CanHandle(decompressedMessage));

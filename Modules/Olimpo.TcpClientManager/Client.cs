@@ -37,7 +37,7 @@ public class Client : IClient
 
     public void Stop()
     {
-        this._tcpClient.Dispose();
         this.Channel?.Dispose();
+        this._tcpClient.Dispose();
     }
 }

@@ -6,11 +6,17 @@
   mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
   x:Class="HushClient.Views.FeedView">
   
-  <Grid RowDefinitions="100 * 80">
+  <Grid RowDefinitions="100 * 100 80">
     <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
       <TextBlock Text="Balance: " />
       <TextBlock Text="{Binding LocalInformation.Balance}" />
     </StackPanel>
+
+    <TextBlock 
+      Grid.Row="2" 
+      Text="" 
+      VerticalAlignment="Bottom" 
+      HorizontalAlignment="Stretch" />
 
     <!-- 
     <ItemsControl Grid.Row="1" ItemsSource="{Binding SubscribedFeeds}">
@@ -34,7 +40,7 @@
     </ItemsControl> 
     -->
 
-    <StackPanel Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+    <StackPanel Grid.Row="3" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
       <TextBlock Text="{Binding BlockchainInformation.BlockchainHeight}" />
       <TextBlock Text=" / " />
       <TextBlock Text="{Binding LocalInformation.LastHeightSynched}" />

@@ -62,11 +62,11 @@ public class Channel : IDisposable
 
     private void Close()
     {
+        this._cancellationTokenSource.Cancel();
+
         this.Dispose(false);
         this._client.Running = false;
         this._client.Channel = null;
-
-        this._cancellationTokenSource.Cancel();
     }
 
     private void StartReadingStream(object obj)
@@ -85,7 +85,7 @@ public class Channel : IDisposable
                     var numberOfBytesRead = stream.Read(buffer, 0, buffer.Length);
                     ms.Write(buffer, 0, numberOfBytesRead);
 
-                } while(stream.DataAvailable);
+                } while(!this._cancellationTokenSource.IsCancellationRequested && stream.DataAvailable);
 
                 data = Encoding.ASCII.GetString(ms.ToArray(), 0, (int)ms.Length);
                 this._client.DataReceived?.OnNext(new DataReceivedArgs(data));
