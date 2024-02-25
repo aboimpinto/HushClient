@@ -8,7 +8,7 @@ public class Channel : IDisposable
     private IClient _client;
     private NetworkStream _stream;
     private bool _disposed;
-    
+    private CancellationTokenSource _cancellationTokenSource;
 
     public Channel(IClient client, NetworkStream stream)
     {
@@ -20,6 +20,8 @@ public class Channel : IDisposable
 
         var readingStreamThread = new Thread(new ParameterizedThreadStart(this.StartReadingStream));
         readingStreamThread.Start(this._stream);
+
+        this._cancellationTokenSource = new CancellationTokenSource();
     }
 
     public void Send(string message)
@@ -37,14 +39,23 @@ public class Channel : IDisposable
                 // TODO: dispose managed state (managed objects)
             }
             
-            this._stream.Close();
-            this._client.Stop();
+            if (this._disposed)
+            {
+                return;
+            }
+
             this._disposed = true;
+            this._stream.Close();
+            this._stream.Dispose();
+
+            this._client.Stop();
         }
     }
 
     public void Dispose()
     {
+        this._cancellationTokenSource.Cancel();
+
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
@@ -54,6 +65,8 @@ public class Channel : IDisposable
         this.Dispose(false);
         this._client.Running = false;
         this._client.Channel = null;
+
+        this._cancellationTokenSource.Cancel();
     }
 
     private void StartReadingStream(object obj)
@@ -63,7 +76,7 @@ public class Channel : IDisposable
 
         var stream = (NetworkStream)obj;
 
-        while(stream.CanRead)
+        while(stream.CanRead && !this._cancellationTokenSource.IsCancellationRequested)
         {
             using (var ms = new MemoryStream())
             {

@@ -6,9 +6,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Olimpo;
 using Olimpo.NavigationManager;
 using HushEcosystem;
-using HushClient.ApplicationSettings.Model;
 using HushClient.Model;
 using HushClient.ViewModels;
+using System;
+using System.Linq;
 
 namespace HushClient;
 
@@ -29,6 +30,8 @@ public partial class App : Application
             {
                 DataContext = viewModel
             };
+
+            desktop.ShutdownRequested += this.OnShutdownRequested;
         }
         else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform)
         {
@@ -44,6 +47,14 @@ public partial class App : Application
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    private void OnShutdownRequested(object? sender, ShutdownRequestedEventArgs e)
+    {
+        ServiceCollectionManager.ServiceProvider
+            .GetServices<IBootstrapper>()
+            .ToList()
+            .ForEach(x => x.Shutdown());
     }
 
     public override void RegisterServices()

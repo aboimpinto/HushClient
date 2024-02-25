@@ -2,13 +2,21 @@ using Olimpo.NavigationManager;
 using Olimpo;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using HushClient.Model;
 
 namespace HushClient.ViewModels;
 
 public class FeedViewModel : ViewModelBase, ILoadableViewModel
 {
-    public FeedViewModel()
+    public BlockchainInformation BlockchainInformation { get; }
+    public LocalInformation LocalInformation { get; }
+
+    public FeedViewModel(
+        BlockchainInformation blockchainInformation, 
+        LocalInformation localInformation)
     {
+        this.BlockchainInformation = blockchainInformation;
+        this.LocalInformation = localInformation;
     }
 
     public Task LoadAsync(IDictionary<string, object>? parameters = null)

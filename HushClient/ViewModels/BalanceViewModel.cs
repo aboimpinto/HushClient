@@ -19,7 +19,6 @@ public class BalanceViewModel :
 
     public BlockchainInformation BlockchainInformation { get; }
     public LocalInformation LocalInformation { get; }
-
     public ObservableCollection<SubscribedFeed> SubscribedFeeds { get; }
     public ReactiveCommand<SubscribedFeed, Unit> FeedSelectCommand { get; }
 

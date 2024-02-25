@@ -23,6 +23,7 @@ namespace HushClient.TcpClient
 
         public void Stop()
         {
+            this._client.Stop();
         }
 
         public Task Start()
