@@ -135,10 +135,31 @@ public class HushClientWorkflow :
             return;
         }
 
-        var sendMessageRequest = new SendMessageRequest
+        var feedMessage = new FeedMessageBuilder()
+            .WithFeedId(feedId)
+            .WithMessageIssuer(this._applicationSettingsManager.UserInfo.PublicSigningAddress)
+            .WithMessage(message)
+            .Build();
+
+        var hashTransactionJsonOptions = new JsonSerializerOptionsBuilder()
+            .WithTransactionBaseConverter(this._transactionBaseConverter)
+            .WithModifierExcludeSignature()
+            .WithModifierExcludeBlockIndex()
+            .WithModifierExcludeHash()
+            .Build();
+
+        var signTransactionJsonOptions = new JsonSerializerOptionsBuilder()
+            .WithTransactionBaseConverter(this._transactionBaseConverter)
+            .WithModifierExcludeSignature()
+            .WithModifierExcludeBlockIndex()
+            .Build();
+
+        feedMessage.HashObject(hashTransactionJsonOptions);
+        feedMessage.Sign(this._applicationSettingsManager.UserInfo.PublicSigningAddress, signTransactionJsonOptions);
+
+        var sendMessageRequest = new SendFeedMessageRequest
         {
-            FeedId = feedId,
-            Message = message
+            FeedMessage = feedMessage
         };
 
         var sendTransactionJsonOptions = new JsonSerializerOptionsBuilder()

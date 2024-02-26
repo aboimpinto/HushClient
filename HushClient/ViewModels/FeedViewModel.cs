@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using HushClient.Model;
 using ReactiveUI;
 using System;
-using HushEcosystem.Model.Rpc.Feeds;
 using HushClient.Workflows;
 
 namespace HushClient.ViewModels;
