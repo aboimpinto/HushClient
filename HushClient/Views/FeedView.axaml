@@ -12,12 +12,6 @@
       <TextBlock Text="{Binding LocalInformation.Balance}" />
     </StackPanel>
 
-    <TextBlock 
-      Grid.Row="2" 
-      Text="" 
-      VerticalAlignment="Bottom" 
-      HorizontalAlignment="Stretch" />
-
     <!-- 
     <ItemsControl Grid.Row="1" ItemsSource="{Binding SubscribedFeeds}">
       <ItemsControl.ItemTemplate>
@@ -39,6 +33,18 @@
       </ItemsControl.ItemTemplate>
     </ItemsControl> 
     -->
+
+    <Grid Grid.Row="2" ColumnDefinitions="* 50" VerticalAlignment="Bottom" HorizontalAlignment="Stretch">
+      <TextBox 
+        Grid.Column="0"
+        Text="{Binding MessageToSend, Mode=TwoWay}" 
+        Background="Gray" />
+
+      <Button 
+        Grid.Column="1"
+        Content="Send" 
+        Command="{Binding SendMessageCommand}" />
+    </Grid>
 
     <StackPanel Grid.Row="3" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
       <TextBlock Text="{Binding BlockchainInformation.BlockchainHeight}" />

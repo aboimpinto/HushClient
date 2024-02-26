@@ -43,7 +43,6 @@ public class HushClientWorkflow :
     private readonly ILogger<HushClientWorkflow> _logger;
 
     private bool _ownFeedFound = false;
-    private IList<Feed> _feeds = [];
 
     public HushClientWorkflow(
         IApplicationSettingsManager applicationSettingsManager,
@@ -127,6 +126,26 @@ public class HushClientWorkflow :
         });
 
         await this._bootstrapperManager.Start();
+    }
+
+    public void SendMessage(string feedId, string message)
+    {
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            return;
+        }
+
+        var sendMessageRequest = new SendMessageRequest
+        {
+            FeedId = feedId,
+            Message = message
+        };
+
+        var sendTransactionJsonOptions = new JsonSerializerOptionsBuilder()
+            .WithTransactionBaseConverter(this._transactionBaseConverter)
+            .Build();
+
+        this._tcpClientService.Send(sendMessageRequest.ToJson(sendTransactionJsonOptions).Compress());
     }
 
     private void InitiateHandShake()

@@ -42,7 +42,7 @@ public class BalanceViewModel :
     {
         var navigateParameters = new Dictionary<string, object>
         {
-            { "SelectedSubcibedFeed", subscribedFeed }
+            { "SelectedSubscribedFeed", subscribedFeed }
         };
 
         this._navigationManager.NavigateAsync("FeedViewModel", navigateParameters);
