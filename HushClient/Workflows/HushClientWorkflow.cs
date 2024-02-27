@@ -78,8 +78,10 @@ public class HushClientWorkflow :
 
                 var feedEncryptionKeys = new EncryptKeys();
 
+                // For the Personal Feed, the Owner and the Participant are the same
                 var personalFeed =  new FeedBuilder()
                     .WithFeedOwner(this._applicationSettingsManager.UserInfo.PublicSigningAddress)
+                    .WithFeedParticipantPublicAddress(this._applicationSettingsManager.UserInfo.PublicSigningAddress)
                     .WithFeedType(FeedTypeEnum.Personal)
                     .WithPublicEncriptAddress(feedEncryptionKeys.PublicKey)
                     .WithPrivateEncriptAddress(feedEncryptionKeys.PrivateKey)
