@@ -1,4 +1,4 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using System.Reactive.Subjects;
 using HushEcosystem.Model.Blockchain;
@@ -37,4 +37,6 @@ public class LocalInformation : ReactiveObject
     }
 
     public IList<Feed> SubscribedFeeds { get; set; } = [];
+
+    public Dictionary<string, IList<FeedMessage>> SubscribedFeedMessages { get; set; } = [];
 }

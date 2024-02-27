@@ -6,10 +6,16 @@ using HushClient.Model;
 using ReactiveUI;
 using System;
 using HushClient.Workflows;
+using HushClient.GlobalEvents;
+using System.Collections.ObjectModel;
+using HushEcosystem.Model.Blockchain;
 
 namespace HushClient.ViewModels;
 
-public class FeedViewModel : ViewModelBase, ILoadableViewModel
+public class FeedViewModel : 
+    ViewModelBase, 
+    ILoadableViewModel,
+    IHandle<RefreshFeedMessagesEvent>
 {
     private string _messageToSend;
     private SubscribedFeed _selectedFeed;
@@ -17,6 +23,8 @@ public class FeedViewModel : ViewModelBase, ILoadableViewModel
 
     public BlockchainInformation BlockchainInformation { get; }
     public LocalInformation LocalInformation { get; }
+
+    public ObservableCollection<FeedMessage> FeedMessages { get; }
 
     public string MessageToSend 
     { 
@@ -27,11 +35,16 @@ public class FeedViewModel : ViewModelBase, ILoadableViewModel
     public FeedViewModel(
         IHushClientWorkflow hushClientWorkflow,
         BlockchainInformation blockchainInformation, 
-        LocalInformation localInformation)
+        LocalInformation localInformation,
+        IEventAggregator eventAggregator)
     {
         this._hushClientWorkflow = hushClientWorkflow;
         this.BlockchainInformation = blockchainInformation;
         this.LocalInformation = localInformation;
+
+        eventAggregator.Subscribe(this);
+
+        this.FeedMessages = new ObservableCollection<FeedMessage>();
     }
 
     public Task LoadAsync(IDictionary<string, object>? parameters = null)
@@ -59,5 +72,12 @@ public class FeedViewModel : ViewModelBase, ILoadableViewModel
         }
 
         this._hushClientWorkflow.SendMessage(this._selectedFeed.FeedId, this.MessageToSend);
+    }
+
+    public void Handle(RefreshFeedMessagesEvent message)
+    {
+        this.FeedMessages.Clear();
+
+        this.LocalInformation.SubscribedFeedMessages[message.FeedId].ForEach(x => this.FeedMessages.Add(x));
     }
 }

@@ -29,7 +29,8 @@ public class HushClientWorkflow :
     IHandle<BlockchainHeightRespondedEvent>,
     IHandle<TransactionsWithAddressRespondedEvent>,
     IHandleAsync<BalanceByAddressRespondedEvent>,
-    IHandleAsync<FeedTransactionHandledEvent>
+    IHandleAsync<FeedTransactionHandledEvent>,
+    IHandleAsync<FeedMessageTransactionHandledEvent>
 {
     private readonly IApplicationSettingsManager _applicationSettingsManager;
     private readonly ITcpClientService _tcpClientService;
@@ -271,11 +272,26 @@ public class HushClientWorkflow :
         if (this._localInformation.SubscribedFeeds.Any(x => x.FeedId == message.Feed.FeedId))
         {
             // Feed already exists
-            // TODO [AboimPinto] Need to implement in case the Feed already exists.
+            // TODO [AboimPinto] Need to implement in case the Feed already exists. 
+            // Maybe this should be Blockchain validation. Should now allow to create feeds that already exists.
             return;
         }
 
         this._localInformation.SubscribedFeeds.Add(message.Feed);
         await this._eventAggregator.PublishAsync(new RefreshFeedsEvent());
+    }
+
+    public async Task HandleAsync(FeedMessageTransactionHandledEvent message)
+    {
+        if(this._localInformation.SubscribedFeedMessages.ContainsKey(message.FeedMessage.FeedId))
+        {
+            this._localInformation.SubscribedFeedMessages[message.FeedMessage.FeedId].Add(message.FeedMessage);
+        }
+        else
+        {
+            this._localInformation.SubscribedFeedMessages.Add(message.FeedMessage.FeedId, new List<FeedMessage> { message.FeedMessage });
+        }
+
+        await this._eventAggregator.PublishAsync(new RefreshFeedMessagesEvent(message.FeedMessage.FeedId));
     }
 }
