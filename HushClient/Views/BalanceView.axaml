@@ -32,7 +32,7 @@
                           Grid.Column="1" 
                           Grid.Row="1"  
                           Text="{Binding PublicAddressView}" 
-                          Foreground="Black"  />
+                          Foreground="Black"  /> 
                       </Grid>
 
                     </Border>

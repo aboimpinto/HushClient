@@ -1,6 +1,9 @@
 <UserControl 
   xmlns="https://github.com/avaloniaui"
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
+  xmlns:ia="clr-namespace:Avalonia.Xaml.Interactions.Core;assembly=Avalonia.Xaml.Interactions"
+  xmlns:customBehaviors="clr-namespace:HushClient.Behaviors"
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
@@ -12,37 +15,77 @@
       <TextBlock Text="{Binding LocalInformation.Balance}" />
     </StackPanel>
 
-    <!-- 
-    <ItemsControl Grid.Row="1" ItemsSource="{Binding SubscribedFeeds}">
-      <ItemsControl.ItemTemplate>
-        <DataTemplate>
-          <Border 
-            Background="Gainsboro" 
-            BorderBrush="Black"
-            BorderThickness="2"
-            CornerRadius="3"
-            Padding="10"
-            Margin="5">
+    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+      <ItemsControl ItemsSource="{Binding FeedMessages}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <Border 
+              Background="#34495E" 
+              BorderBrush="#2c3e50"
+              BorderThickness="2"
+              CornerRadius="3"
+              Padding="10"
+              Margin="5">
 
-            <StackPanel Orientation="Vertical">
-              <TextBlock Text="{Binding FeedType}" />
-              <TextBlock Text="{Binding PublicAddressView}" />
-            </StackPanel>
-          </Border>
-        </DataTemplate>
-      </ItemsControl.ItemTemplate>
-    </ItemsControl> 
-    -->
+              <Grid RowDefinitions="* Auto" ColumnDefinitions="* Auto" HorizontalAlignment="Right">
+                <TextBlock 
+                  Grid.Column="0"
+                  Grid.Row="0"
+                  VerticalAlignment="Center"
+                  Text="{Binding FeedMessageDecrypted}" 
+                  FontWeight="Regular"
+                  FontSize="12"
+                  Margin="0 0 2 0"
+                  TextWrapping="Wrap" />
+
+                  <ContentControl Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Margin="2 0 0 0" IsVisible="{Binding IsFeedMessageConfirmed}">
+                    <ContentControl.Template>
+                      <ControlTemplate>
+                        
+                        <Viewbox>
+                            <Canvas Width="24" Height="24">
+                                <Path 
+                                    Data="M10,17L5,12L6.41,10.58L10,14.17L17.59,6.58L19,8M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"
+                                    Fill="#2c3e50" />
+                            </Canvas>
+                        </Viewbox>
+                      </ControlTemplate>
+                    </ContentControl.Template>
+                  </ContentControl>
+
+                  <TextBlock 
+                    Grid.Row="1" 
+                    Grid.ColumnSpan="2" 
+                    HorizontalAlignment="Right" 
+                    Text="{Binding MessageTime}"
+                    FontSize="10"
+                    FontWeight="Thin" />
+              </Grid>
+
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+
+      <i:Interaction.Behaviors>
+        <customBehaviors:AutoScrollBehavior AutoScroll="{Binding ScrollMessageToEnd}" />
+      </i:Interaction.Behaviors>
+    </ScrollViewer>
 
     <Grid Grid.Row="2" ColumnDefinitions="* 50" VerticalAlignment="Bottom" HorizontalAlignment="Stretch">
       <TextBox 
         Grid.Column="0"
-        Text="{Binding MessageToSend, Mode=TwoWay}" 
-        Background="Gray" />
+        Text="{Binding MessageToSend}" >
+
+        <i:Interaction.Behaviors>
+            <customBehaviors:SetFocusBehavior SetFocus="{Binding MessageToSentFocus}" />
+        </i:Interaction.Behaviors>
+      </TextBox>
 
       <Button 
         Grid.Column="1"
         Content="Send" 
+        IsDefault="True"
         Command="{Binding SendMessageCommand}" />
     </Grid>
 

@@ -1,13 +1,18 @@
-<Application xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="using:HushClient"
-             x:Class="HushClient.App"
-             RequestedThemeVariant="Default">
-             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+<Application 
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:HushClient"
+    x:Class="HushClient.App"
+    RequestedThemeVariant="Default">
+    <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
     <Application.DataTemplates>
         <local:ViewLocator/>
     </Application.DataTemplates>
+
+    <Application.Resources>
+        <FontFamily x:Key="FlatUiIcons">avares://HushClient/Assets/Fonts/flat-ui-pro-icons-regular.ttf</FontFamily>
+    </Application.Resources>
 
     <Application.Styles>
         <FluentTheme />

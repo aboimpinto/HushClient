@@ -131,17 +131,17 @@ public class HushClientWorkflow :
         await this._bootstrapperManager.Start();
     }
 
-    public void SendMessage(string feedId, string message)
+    public FeedMessage? SendMessage(string feedId, string message)
     {
         if (string.IsNullOrWhiteSpace(message))
         {
-            return;
+            return null;
         }
 
         var feedMessage = new FeedMessageBuilder()
             .WithFeedId(feedId)
             .WithMessageIssuer(this._applicationSettingsManager.UserInfo.PublicSigningAddress)
-            .WithMessage(message)
+            .WithMessage(EncryptKeys.Encrypt(message, _applicationSettingsManager.UserInfo.PublicEncryptAddress))
             .Build();
 
         var hashTransactionJsonOptions = new JsonSerializerOptionsBuilder()
@@ -170,6 +170,7 @@ public class HushClientWorkflow :
             .Build();
 
         this._tcpClientService.Send(sendMessageRequest.ToJson(sendTransactionJsonOptions).Compress());
+        return feedMessage;
     }
 
     private void InitiateHandShake()
