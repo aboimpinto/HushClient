@@ -1,7 +1,7 @@
 using HushClient.ViewModels;
 using HushEcosystem.Model.Blockchain;
 
-namespace HushClient.Extensions;
+namespace HushClient;
 
 public static class FeedMessageExtensions
 {

@@ -7,12 +7,9 @@ using ReactiveUI;
 using Olimpo.NavigationManager;
 using Olimpo;
 using HushEcosystem.Model.GlobalEvents;
-using HushEcosystem.Model.Blockchain;
 using HushClient.Model;
 using HushClient.GlobalEvents;
 using HushClient.Workflows;
-using HushClient.Extensions;
-using HushClient.ApplicationSettings.Model;
 using HushClient.ApplicationSettings;
 
 namespace HushClient.ViewModels;
@@ -27,11 +24,18 @@ public class FeedViewModel :
     private SubscribedFeed _selectedFeed;
     private bool _messageToSentFocus;
     private bool _scrollMessageToEnd;
+    private string _feedName;
     private readonly IHushClientWorkflow _hushClientWorkflow;
     private readonly IApplicationSettingsManager _applicationSettingsManager;
 
     public BlockchainInformation BlockchainInformation { get; }
     public LocalInformation LocalInformation { get; }
+
+    public string FeedName 
+    { 
+        get => this._feedName; 
+        set => this.RaiseAndSetIfChanged(ref this._feedName, value); 
+    }
 
     public bool MessageToSentFocus 
     { 
@@ -82,6 +86,8 @@ public class FeedViewModel :
 
             this._selectedFeed = selectedFeed;
 
+            this.FeedName = this.CalculateFeedName(selectedFeed);
+
             if (this.LocalInformation.SubscribedFeedMessages.ContainsKey(selectedFeed.FeedId))
             {
                 this.LocalInformation.SubscribedFeedMessages[selectedFeed.FeedId]
@@ -91,8 +97,8 @@ public class FeedViewModel :
                         this.FeedMessages.Add(
                             x
                                 .ToFeedMessageUI(true)
-                                .SetOwnMessage(this._applicationSettingsManager.UserInfo.PublicSigningAddress)
-                                .DecryptFeedMessage(this._applicationSettingsManager.UserInfo.PrivateEncryptKey));
+                                .SetOwnMessage(this._applicationSettingsManager.UserProfile.PublicSigningAddress)
+                                .DecryptFeedMessage(this._applicationSettingsManager.UserProfile.PrivateEncryptKey));
                     });
 
                 this.ScrollMessageToEnd = true;
@@ -115,8 +121,8 @@ public class FeedViewModel :
             this.FeedMessages.Add(
                 sentMessage
                     .ToFeedMessageUI()
-                    .SetOwnMessage(this._applicationSettingsManager.UserInfo.PublicSigningAddress)
-                    .DecryptFeedMessage(this._applicationSettingsManager.UserInfo.PrivateEncryptKey));
+                    .SetOwnMessage(this._applicationSettingsManager.UserProfile.PublicSigningAddress)
+                    .DecryptFeedMessage(this._applicationSettingsManager.UserProfile.PrivateEncryptKey));
         }
 
         this.MessageToSend = string.Empty;
@@ -147,10 +153,20 @@ public class FeedViewModel :
             this.FeedMessages.Add(
                 message.FeedMessage
                     .ToFeedMessageUI(false)
-                    .SetOwnMessage(this._applicationSettingsManager.UserInfo.PublicSigningAddress)
-                    .DecryptFeedMessage(this._applicationSettingsManager.UserInfo.PrivateEncryptKey));
+                    .SetOwnMessage(this._applicationSettingsManager.UserProfile.PublicSigningAddress)
+                    .DecryptFeedMessage(this._applicationSettingsManager.UserProfile.PrivateEncryptKey));
         }
 
         this.ScrollMessageToEnd = true;
+    }
+
+    private string CalculateFeedName(SubscribedFeed selectedFeed)
+    {
+        if (selectedFeed.FeedType == HushEcosystem.Model.Blockchain.FeedTypeEnum.Personal)
+        {
+            return $"{this._applicationSettingsManager.UserProfile.ProfileName} (You)";
+        }
+
+        return "Unknown Feed Name";
     }
 }

@@ -10,10 +10,16 @@
   x:Class="HushClient.Views.FeedView">
   
   <Grid RowDefinitions="100 * 100 80">
-    <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
-      <TextBlock Text="Balance: " />
-      <TextBlock Text="{Binding LocalInformation.Balance}" />
-    </StackPanel>
+    <Grid Grid.Row="0" Grid.ColumnDefinitions="* Auto">
+      <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">
+        <TextBlock Text="{Binding FeedName}" />
+      </StackPanel>
+
+      <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+        <TextBlock Text="Balance: " />
+        <TextBlock Text="{Binding LocalInformation.Balance}" />
+      </StackPanel>
+    </Grid>
 
     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
       <ItemsControl ItemsSource="{Binding FeedMessages}">

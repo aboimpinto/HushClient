@@ -70,52 +70,7 @@ public class HushClientWorkflow :
 
         this._eventAggregator.Subscribe(this);
 
-        this._localInformation.IsSynchingStream.Subscribe(x => 
-        {
-            if (x && !this._ownFeedFound)
-            {
-                this._logger.LogInformation("Blockain synched...");
-
-                var feedEncryptionKeys = new EncryptKeys();
-
-                // For the Personal Feed, the Owner and the Participant are the same
-                var personalFeed =  new FeedBuilder()
-                    .WithFeedOwner(this._applicationSettingsManager.UserInfo.PublicSigningAddress)
-                    .WithFeedParticipantPublicAddress(this._applicationSettingsManager.UserInfo.PublicSigningAddress)
-                    .WithFeedType(FeedTypeEnum.Personal)
-                    .WithPublicEncriptAddress(feedEncryptionKeys.PublicKey)
-                    .WithPrivateEncriptAddress(feedEncryptionKeys.PrivateKey)
-                    .Build();
-
-                var hashTransactionJsonOptions = new JsonSerializerOptionsBuilder()
-                    .WithTransactionBaseConverter(this._transactionBaseConverter)
-                    .WithModifierExcludeSignature()
-                    .WithModifierExcludeBlockIndex()
-                    .WithModifierExcludeHash()
-                    .Build();
-
-                var signTransactionJsonOptions = new JsonSerializerOptionsBuilder()
-                    .WithTransactionBaseConverter(this._transactionBaseConverter)
-                    .WithModifierExcludeSignature()
-                    .WithModifierExcludeBlockIndex()
-                    .Build();
-
-                personalFeed.HashObject(hashTransactionJsonOptions);
-                personalFeed.Sign(this._applicationSettingsManager.UserInfo.PublicSigningAddress, signTransactionJsonOptions);
-
-                var sendTransactionJsonOptions = new JsonSerializerOptionsBuilder()
-                    .WithTransactionBaseConverter(this._transactionBaseConverter)
-                    .WithModifierExcludeBlockIndex()
-                    .Build();
-
-                var newFeedRequest = new NewFeedRequest
-                {
-                    Feed = personalFeed
-                };
-                this._tcpClientService.Send(newFeedRequest.ToJson(sendTransactionJsonOptions).Compress());
-                this._ownFeedFound = true;
-            }
-        });
+        this._localInformation.IsSynchingStream.Subscribe(x => this.OnBlockChainSynched(x));
     }
 
     public async Task Start()
@@ -140,8 +95,8 @@ public class HushClientWorkflow :
 
         var feedMessage = new FeedMessageBuilder()
             .WithFeedId(feedId)
-            .WithMessageIssuer(this._applicationSettingsManager.UserInfo.PublicSigningAddress)
-            .WithMessage(EncryptKeys.Encrypt(message, _applicationSettingsManager.UserInfo.PublicEncryptAddress))
+            .WithMessageIssuer(this._applicationSettingsManager.UserProfile.PublicSigningAddress)
+            .WithMessage(EncryptKeys.Encrypt(message, _applicationSettingsManager.UserProfile.PublicEncryptAddress))
             .Build();
 
         var hashTransactionJsonOptions = new JsonSerializerOptionsBuilder()
@@ -158,7 +113,7 @@ public class HushClientWorkflow :
             .Build();
 
         feedMessage.HashObject(hashTransactionJsonOptions);
-        feedMessage.Sign(this._applicationSettingsManager.UserInfo.PublicSigningAddress, signTransactionJsonOptions);
+        feedMessage.Sign(this._applicationSettingsManager.UserProfile.PublicSigningAddress, signTransactionJsonOptions);
 
         var sendMessageRequest = new SendFeedMessageRequest
         {
@@ -222,12 +177,11 @@ public class HushClientWorkflow :
 
         // Request all transactions since last sync for the address
         var lastTransactionsRequest = new TransationsWithAddressRequestBuilder()
-            .WithAddress(this._applicationSettingsManager.UserInfo.PublicSigningAddress)
+            .WithAddress(this._applicationSettingsManager.UserProfile.PublicSigningAddress)
             .WithLastHeightSynched(this._applicationSettingsManager.BlockchainInfo.LastHeightSynched)
             .Build();
 
         this._tcpClientService.Send(lastTransactionsRequest.ToJson(sendTransactionJsonOptions).Compress());
-        // }
     }
 
     public void Handle(TransactionsWithAddressRespondedEvent message)
@@ -250,7 +204,7 @@ public class HushClientWorkflow :
         }
 
         var BalanceByAddressRequest = new BalanceByAddressRequestBuilder()
-            .WithAddress(this._applicationSettingsManager.UserInfo.PublicSigningAddress)
+            .WithAddress(this._applicationSettingsManager.UserProfile.PublicSigningAddress)
             .Build();
 
         this._tcpClientService.Send(BalanceByAddressRequest.ToJson(sendTransactionJsonOptions).Compress());
@@ -296,5 +250,52 @@ public class HushClientWorkflow :
         }
 
         await this._eventAggregator.PublishAsync(new RefreshFeedMessagesEvent(message.FeedMessage.FeedId));
+    }
+
+    private void OnBlockChainSynched(bool synched)
+    {
+        if (synched && !this._ownFeedFound)
+        {
+            this._logger.LogInformation("Blockain synched...");
+
+            var feedEncryptionKeys = new EncryptKeys();
+
+            // For the Personal Feed, the Owner and the Participant are the same
+            var personalFeed =  new FeedBuilder()
+                .WithFeedOwner(this._applicationSettingsManager.UserProfile.PublicSigningAddress)
+                .WithFeedParticipantPublicAddress(this._applicationSettingsManager.UserProfile.PublicSigningAddress)
+                .WithFeedType(FeedTypeEnum.Personal)
+                .WithPublicEncriptAddress(feedEncryptionKeys.PublicKey)
+                .WithPrivateEncriptAddress(feedEncryptionKeys.PrivateKey)
+                .Build();
+
+            var hashTransactionJsonOptions = new JsonSerializerOptionsBuilder()
+                .WithTransactionBaseConverter(this._transactionBaseConverter)
+                .WithModifierExcludeSignature()
+                .WithModifierExcludeBlockIndex()
+                .WithModifierExcludeHash()
+                .Build();
+
+            var signTransactionJsonOptions = new JsonSerializerOptionsBuilder()
+                .WithTransactionBaseConverter(this._transactionBaseConverter)
+                .WithModifierExcludeSignature()
+                .WithModifierExcludeBlockIndex()
+                .Build();
+
+            personalFeed.HashObject(hashTransactionJsonOptions);
+            personalFeed.Sign(this._applicationSettingsManager.UserProfile.PublicSigningAddress, signTransactionJsonOptions);
+
+            var sendTransactionJsonOptions = new JsonSerializerOptionsBuilder()
+                .WithTransactionBaseConverter(this._transactionBaseConverter)
+                .WithModifierExcludeBlockIndex()
+                .Build();
+
+            var newFeedRequest = new NewFeedRequest
+            {
+                Feed = personalFeed
+            };
+            this._tcpClientService.Send(newFeedRequest.ToJson(sendTransactionJsonOptions).Compress());
+            this._ownFeedFound = true;
+        }
     }
 }

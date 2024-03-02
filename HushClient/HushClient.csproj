@@ -34,4 +34,8 @@
     <ProjectReference Include="..\Services\HushClient.ApplicationSettings\HushClient.ApplicationSettings.csproj" />
     <ProjectReference Include="..\Modules\Olimpo.EncryptingManager\EncryptingManager.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Update="ApplicationSettings.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

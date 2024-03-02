@@ -1,7 +1,7 @@
 using HushClient.ViewModels;
 using Olimpo;
 
-namespace HushClient.Extensions;
+namespace HushClient;
 
 public static class FeedMessageUIExtensions
 {

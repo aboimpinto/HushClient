@@ -1,7 +1,9 @@
 namespace HushClient.ApplicationSettings.Model;
 
-public class UserInfo
+public class UserProfile
 {
+    public string ProfileName { get; set; } = string.Empty;
+
     public string PublicSigningAddress { get; set; } = string.Empty;
 
     public string PrivateSigningKey { get; set; } = string.Empty;

@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
+using HushClient.ApplicationSettings;
 using HushClient.GlobalEvents;
 using HushClient.Model;
-using HushEcosystem.Model.Blockchain;
 using Olimpo;
 using Olimpo.NavigationManager;
 using ReactiveUI;
@@ -15,6 +15,7 @@ public class BalanceViewModel :
     ViewModelBase,
     IHandle<RefreshFeedsEvent>
 {
+    private readonly IApplicationSettingsManager _applicationSettingsManager;
     private readonly INavigationManager _navigationManager;
 
     public BlockchainInformation BlockchainInformation { get; }
@@ -22,14 +23,15 @@ public class BalanceViewModel :
     public ObservableCollection<SubscribedFeed> SubscribedFeeds { get; }
     public ReactiveCommand<SubscribedFeed, Unit> FeedSelectCommand { get; }
 
-
     public BalanceViewModel(
         BlockchainInformation blockchainInformation, 
+        IApplicationSettingsManager applicationSettingsManager,
         LocalInformation localInformation,
         INavigationManager navigationManager,
         IEventAggregator eventAggregator)
     {
         this.BlockchainInformation = blockchainInformation;
+        this._applicationSettingsManager = applicationSettingsManager;
         this.LocalInformation = localInformation;
         this._navigationManager = navigationManager;
         eventAggregator.Subscribe(this);
@@ -70,7 +72,7 @@ public class BalanceViewModel :
                 {
                     FeedId = x.FeedId,
                     FeedType = x.FeedType,
-                    PublicAddressView = x.FeedPublicEncriptAddress.Truncate(10),
+                    PublicAddressView = $"{this._applicationSettingsManager.UserProfile.ProfileName} (You)",
                     PublicAddress = x.FeedPublicEncriptAddress,
                     PrivateKey = x.FeedPrivateEncriptAddress
                 };
@@ -78,71 +80,5 @@ public class BalanceViewModel :
                 this.SubscribedFeeds.Add(feed);
             }
         });
-    }
-}
-
-public static class SubscribedFeedsExtensions
-{
-    public static bool IsPersonalFeedUnique(this IEnumerable<SubscribedFeed> source)
-    {
-        var uniqueFeed = source.SingleOrDefault(x => x.FeedType == FeedTypeEnum.Personal);
-        if (uniqueFeed == null)
-        {
-            return false;
-        }
-
-        return true;
-    }
-}
-
-public class SubscribedFeed : ReactiveObject
-{
-    private string _feedId = string.Empty;
-    private FeedTypeEnum _feedType;
-    private string _publicAddressView = string.Empty;
-    private string _publicAddress = string.Empty;
-    private string _privateKey = string.Empty;
-
-    public string FeedId 
-    { 
-        get => this._feedId; 
-        set => this.RaiseAndSetIfChanged(ref this._feedId, value); 
-    }
-
-    public FeedTypeEnum FeedType 
-    {
-        get => this._feedType; 
-        set => this.RaiseAndSetIfChanged(ref this._feedType, value); 
-    }
-
-    public string PublicAddressView
-    {
-        get => this._publicAddressView;
-        set => this.RaiseAndSetIfChanged(ref this._publicAddressView, value);
-    }
-
-    public string PublicAddress
-    {
-        get => this._publicAddress;
-        set => this.RaiseAndSetIfChanged(ref this._publicAddress, value);
-    }
-
-    public string PrivateKey 
-    { 
-        get => this._privateKey; 
-        set => this.RaiseAndSetIfChanged(ref this._privateKey, value);
-    }
-}
-
-public static class StringExtensions
-{
-    public static string Truncate(this string value, int maxLength)
-    {
-        if (string.IsNullOrEmpty(value)) 
-        {
-            return value;
-        }
-
-        return value.Length <= maxLength ? value : value[..maxLength]; 
     }
 }

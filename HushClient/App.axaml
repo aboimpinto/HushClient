@@ -11,7 +11,7 @@
     </Application.DataTemplates>
 
     <Application.Resources>
-        <FontFamily x:Key="FlatUiIcons">avares://HushClient/Assets/Fonts/flat-ui-pro-icons-regular.ttf</FontFamily>
+        <!-- <FontFamily x:Key="FlatUiIcons">avares://HushClient/Assets/Fonts/flat-ui-pro-icons-regular.ttf</FontFamily> -->
     </Application.Resources>
 
     <Application.Styles>

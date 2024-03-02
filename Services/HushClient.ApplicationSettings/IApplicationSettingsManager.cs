@@ -4,7 +4,7 @@ namespace HushClient.ApplicationSettings;
 
 public interface IApplicationSettingsManager
 {
-    UserInfo UserInfo { get; }
+    UserProfile UserProfile { get; }
 
     BlockchainInfo BlockchainInfo { get; }
 
