@@ -20,6 +20,8 @@ using System.Collections.Generic;
 using HushEcosystem.Model.Blockchain.TransactionHandlerStrategies;
 using System.Linq;
 using HushClient.GlobalEvents;
+using HushEcosystem.Model.Rpc.Profiles;
+using System.Text.Json;
 
 namespace HushClient.Workflows;
 
@@ -258,17 +260,6 @@ public class HushClientWorkflow :
         {
             this._logger.LogInformation("Blockain synched...");
 
-            var feedEncryptionKeys = new EncryptKeys();
-
-            // For the Personal Feed, the Owner and the Participant are the same
-            var personalFeed =  new FeedBuilder()
-                .WithFeedOwner(this._applicationSettingsManager.UserProfile.PublicSigningAddress)
-                .WithFeedParticipantPublicAddress(this._applicationSettingsManager.UserProfile.PublicSigningAddress)
-                .WithFeedType(FeedTypeEnum.Personal)
-                .WithPublicEncriptAddress(feedEncryptionKeys.PublicKey)
-                .WithPrivateEncriptAddress(feedEncryptionKeys.PrivateKey)
-                .Build();
-
             var hashTransactionJsonOptions = new JsonSerializerOptionsBuilder()
                 .WithTransactionBaseConverter(this._transactionBaseConverter)
                 .WithModifierExcludeSignature()
@@ -282,20 +273,64 @@ public class HushClientWorkflow :
                 .WithModifierExcludeBlockIndex()
                 .Build();
 
-            personalFeed.HashObject(hashTransactionJsonOptions);
-            personalFeed.Sign(this._applicationSettingsManager.UserProfile.PublicSigningAddress, signTransactionJsonOptions);
-
             var sendTransactionJsonOptions = new JsonSerializerOptionsBuilder()
                 .WithTransactionBaseConverter(this._transactionBaseConverter)
                 .WithModifierExcludeBlockIndex()
                 .Build();
 
-            var newFeedRequest = new NewFeedRequest
-            {
-                Feed = personalFeed
-            };
-            this._tcpClientService.Send(newFeedRequest.ToJson(sendTransactionJsonOptions).Compress());
-            this._ownFeedFound = true;
+            // Create UserProfile
+            this.CreateUserProfileOnBlockchain(hashTransactionJsonOptions, signTransactionJsonOptions, sendTransactionJsonOptions);
+
+            // Create Personal Feed
+            this.CreatePersonalFeed(hashTransactionJsonOptions, signTransactionJsonOptions, sendTransactionJsonOptions);
         }
+    }
+
+    private void CreatePersonalFeed(
+        JsonSerializerOptions hashTransactionJsonOptions, 
+        JsonSerializerOptions signTransactionJsonOptions, 
+        JsonSerializerOptions sendTransactionJsonOptions)
+    {
+        var feedEncryptionKeys = new EncryptKeys();
+
+        // For the Personal Feed, the Owner and the Participant are the same
+        var personalFeed = new FeedBuilder()
+            .WithFeedOwner(this._applicationSettingsManager.UserProfile.PublicSigningAddress)
+            .WithFeedParticipantPublicAddress(this._applicationSettingsManager.UserProfile.PublicSigningAddress)
+            .WithFeedType(FeedTypeEnum.Personal)
+            .WithPublicEncriptAddress(feedEncryptionKeys.PublicKey)
+            .WithPrivateEncriptAddress(feedEncryptionKeys.PrivateKey)
+            .Build();
+
+        personalFeed.HashObject(hashTransactionJsonOptions);
+        personalFeed.Sign(this._applicationSettingsManager.UserProfile.PublicSigningAddress, signTransactionJsonOptions);
+
+        var newFeedRequest = new NewFeedRequest
+        {
+            Feed = personalFeed
+        };
+        this._tcpClientService.Send(newFeedRequest.ToJson(sendTransactionJsonOptions).Compress());
+        this._ownFeedFound = true;
+    }
+
+    private void CreateUserProfileOnBlockchain(
+        JsonSerializerOptions hashTransactionJsonOptions, 
+        JsonSerializerOptions signTransactionJsonOptions, 
+        JsonSerializerOptions sendTransactionJsonOptions)
+    {
+        var userProfile = new UserProfileBuilder()
+            .WithPublicSigningAddress(this._applicationSettingsManager.UserProfile.PublicSigningAddress)
+            .WithPublicEncryptAddress(this._applicationSettingsManager.UserProfile.PublicEncryptAddress)
+            .WithUserName(this._applicationSettingsManager.UserProfile.ProfileName)
+            .Build();
+
+        userProfile.HashObject(hashTransactionJsonOptions);
+        userProfile.Sign(this._applicationSettingsManager.UserProfile.PublicSigningAddress, signTransactionJsonOptions);
+
+        var userProfileRequest = new UserProfileRequest
+        {
+            UserProfile = userProfile
+        };
+        this._tcpClientService.Send(userProfileRequest.ToJson(sendTransactionJsonOptions).Compress());
     }
 }
