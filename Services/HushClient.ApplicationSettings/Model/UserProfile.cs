@@ -11,4 +11,6 @@ public class UserProfile
     public string PublicEncryptAddress { get; set; } = string.Empty;
     
     public string PrivateEncryptKey { get; set; } = string.Empty;
+
+    public bool IsPublic { get; set; }
 }

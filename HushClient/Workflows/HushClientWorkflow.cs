@@ -322,6 +322,7 @@ public class HushClientWorkflow :
             .WithPublicSigningAddress(this._applicationSettingsManager.UserProfile.PublicSigningAddress)
             .WithPublicEncryptAddress(this._applicationSettingsManager.UserProfile.PublicEncryptAddress)
             .WithUserName(this._applicationSettingsManager.UserProfile.ProfileName)
+            .WithIsPublicFlag(this._applicationSettingsManager.UserProfile.IsPublic)
             .Build();
 
         userProfile.HashObject(hashTransactionJsonOptions);
