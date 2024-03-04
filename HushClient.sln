@@ -36,6 +36,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HushClient.ApplicationSetti
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HushEcosystem.Model", "Modules\HushEcosystem.Model\HushEcosystem.Model.csproj", "{50B3162F-FB6A-4580-8680-55086B8FC8C6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HushClient.Account", "Services\HushClient.Account\HushClient.Account.csproj", "{B00EF261-036C-46A4-A9B8-06A9093C3BAA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -86,6 +88,10 @@ Global
 		{50B3162F-FB6A-4580-8680-55086B8FC8C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{50B3162F-FB6A-4580-8680-55086B8FC8C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{50B3162F-FB6A-4580-8680-55086B8FC8C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B00EF261-036C-46A4-A9B8-06A9093C3BAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B00EF261-036C-46A4-A9B8-06A9093C3BAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B00EF261-036C-46A4-A9B8-06A9093C3BAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B00EF261-036C-46A4-A9B8-06A9093C3BAA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -104,5 +110,6 @@ Global
 		{5180F3F0-366D-47A8-A425-77DCF7008D48} = {0A2DF6C4-C8F4-4958-9833-875B948C14A3}
 		{6B8E6B3B-65F6-4011-BBCA-C9B024118EEC} = {0A2DF6C4-C8F4-4958-9833-875B948C14A3}
 		{50B3162F-FB6A-4580-8680-55086B8FC8C6} = {8B07C552-71D9-4203-8E02-9D46C478AE6B}
+		{B00EF261-036C-46A4-A9B8-06A9093C3BAA} = {0A2DF6C4-C8F4-4958-9833-875B948C14A3}
 	EndGlobalSection
 EndGlobal
