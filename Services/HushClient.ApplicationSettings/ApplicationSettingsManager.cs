@@ -1,5 +1,7 @@
-﻿using System.Reactive.Subjects;
+﻿using System.IO;
+using System.Reactive.Subjects;
 using System.Reflection;
+using System.Threading.Tasks;
 using HushClient.ApplicationSettings.Model;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
