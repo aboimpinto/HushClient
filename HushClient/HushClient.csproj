@@ -33,6 +33,7 @@
     <ProjectReference Include="..\Services\HushClient.TcpClient\HushClient.TcpClientService.csproj" />
     <ProjectReference Include="..\Services\HushClient.ApplicationSettings\HushClient.ApplicationSettings.csproj" />
     <ProjectReference Include="..\Modules\Olimpo.EncryptingManager\EncryptingManager.csproj" />
+    <ProjectReference Include="..\Services\HushClient.Account\HushClient.Account.csproj" />
   </ItemGroup>
 
   <ItemGroup>
