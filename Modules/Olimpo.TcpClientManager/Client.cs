@@ -1,5 +1,7 @@
-﻿using System.Net.Sockets;
+﻿using System;
+using System.Net.Sockets;
 using System.Reactive.Subjects;
+using System.Threading.Tasks;
 
 namespace Olimpo.TcpClientManager;
 

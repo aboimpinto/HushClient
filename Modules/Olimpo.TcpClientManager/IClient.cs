@@ -1,4 +1,5 @@
 using System.Reactive.Subjects;
+using System.Threading.Tasks;
 
 namespace Olimpo.TcpClientManager;
 
