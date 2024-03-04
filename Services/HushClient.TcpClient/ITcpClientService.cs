@@ -1,5 +1,3 @@
-using System.Threading.Tasks;
-
 namespace HushClient.TcpClient
 {
     public interface ITcpClientService
@@ -8,6 +6,6 @@ namespace HushClient.TcpClient
 
         Task Start();
 
-        void Send(string commandJson);
+        Task Send(string commandJson);
     }
 }

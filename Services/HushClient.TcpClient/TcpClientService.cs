@@ -53,9 +53,9 @@ namespace HushClient.TcpClient
             return Task.CompletedTask;
         }
 
-        public void Send(string commandJson)
+        public async Task Send(string commandJson)
         {
-            this._client.Channel.Send(commandJson);
+            await this._client.Channel.Send(commandJson.Compress());
         }
     }
 }

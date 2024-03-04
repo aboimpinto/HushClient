@@ -11,6 +11,7 @@ using HushClient.Model;
 using HushClient.GlobalEvents;
 using HushClient.Workflows;
 using HushClient.ApplicationSettings;
+using Org.BouncyCastle.Asn1;
 
 namespace HushClient.ViewModels;
 
@@ -108,14 +109,14 @@ public class FeedViewModel :
         return Task.CompletedTask;
     }
 
-    public void SendMessageCommand()
+    public async Task SendMessageCommand()
     {
         if (string.IsNullOrWhiteSpace(this.MessageToSend))
         {
             return;
         }
 
-        var sentMessage = this._hushClientWorkflow.SendMessage(this._selectedFeed.FeedId, this.MessageToSend);
+        var sentMessage = await this._hushClientWorkflow.SendMessage(this._selectedFeed.FeedId, this.MessageToSend);
         if (sentMessage != null)
         {
             this.FeedMessages.Add(

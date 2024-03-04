@@ -5,6 +5,7 @@ using System.Reactive;
 using HushClient.ApplicationSettings;
 using HushClient.GlobalEvents;
 using HushClient.Model;
+using HushEcosystem.Model.Blockchain;
 using Olimpo;
 using Olimpo.NavigationManager;
 using ReactiveUI;
@@ -65,10 +66,24 @@ public class BalanceViewModel :
                 // can only have one personal feed
                 if (this.SubscribedFeeds.IsPersonalFeedUnique())
                 {
+                    if (x.FeedType == FeedTypeEnum.Chat)
+                    {
+                        var chatFeed = new SubscribedFeed
+                        {
+                            FeedId = x.FeedId,
+                            FeedType = x.FeedType,
+                            PublicAddressView = x.FeedParticipantPublicAddress.Truncate(10),
+                            PublicAddress = x.FeedPublicEncriptAddress,
+                            PrivateKey = x.FeedPrivateEncriptAddress
+                        };
+
+                        this.SubscribedFeeds.Add(chatFeed);
+                    }
+
                     return;
                 }
 
-                var feed = new SubscribedFeed
+                var personalFeed = new SubscribedFeed
                 {
                     FeedId = x.FeedId,
                     FeedType = x.FeedType,
@@ -77,7 +92,7 @@ public class BalanceViewModel :
                     PrivateKey = x.FeedPrivateEncriptAddress
                 };
 
-                this.SubscribedFeeds.Add(feed);
+                this.SubscribedFeeds.Add(personalFeed);
             }
         });
     }

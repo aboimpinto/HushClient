@@ -5,6 +5,8 @@ namespace Olimpo.TcpClientManager;
 
 public class Channel : IDisposable
 {
+    private const int BUFFER = 4096;            // Be able to receive 4MBytes of data
+
     private IClient _client;
     private NetworkStream _stream;
     private bool _disposed;
@@ -24,10 +26,17 @@ public class Channel : IDisposable
         this._cancellationTokenSource = new CancellationTokenSource();
     }
 
-    public void Send(string message)
+    public async Task Send(string message)
     {
         var data = Encoding.UTF8.GetBytes(message);
-        this._stream.Write(data, 0, data.Length);
+
+        if (data.Length > BUFFER)
+        {
+            throw new InvalidOperationException("The message is too big to be sent");
+        }
+
+        await this._stream.WriteAsync(data, 0, data.Length);
+        await Task.Delay(TimeSpan.FromMilliseconds(100));      // 100ms delay to give time to the server to process the message
     }
 
     protected virtual void Dispose(bool disposing)
@@ -71,7 +80,9 @@ public class Channel : IDisposable
 
     private void StartReadingStream(object obj)
     {
-        byte[] buffer = new byte[4096];     // Be able to receive 4MBytes of data
+        
+
+        byte[] buffer = new byte[BUFFER];     
         string data;
 
         var stream = (NetworkStream)obj;

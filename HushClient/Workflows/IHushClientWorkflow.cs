@@ -7,5 +7,5 @@ public interface IHushClientWorkflow
 {
     Task Start();
 
-    FeedMessage? SendMessage(string feedId, string message);
+    Task<FeedMessage?> SendMessage(string feedId, string message);
 }
