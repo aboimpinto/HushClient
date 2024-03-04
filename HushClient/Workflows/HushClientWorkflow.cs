@@ -288,8 +288,7 @@ public class HushClientWorkflow :
             await this.CreatePersonalFeedAsync(hashTransactionJsonOptions, signTransactionJsonOptions, sendTransactionJsonOptions);
 
             // HACK [AboimPinto] 2024.03.04 Create a chat feed with the other user
-
-            await this.CreateFeedWithAboimPinto(hashTransactionJsonOptions, signTransactionJsonOptions, sendTransactionJsonOptions);
+            await this.CreateFeedWithAboimPintoAsync(hashTransactionJsonOptions, signTransactionJsonOptions, sendTransactionJsonOptions);
         }
     }
 
@@ -344,7 +343,7 @@ public class HushClientWorkflow :
         await this._tcpClientService.Send(userProfileRequest.ToJson(sendTransactionJsonOptions));
     }
 
-    private async Task CreateFeedWithAboimPinto(
+    private async Task CreateFeedWithAboimPintoAsync(
         JsonSerializerOptions hashTransactionJsonOptions, 
         JsonSerializerOptions signTransactionJsonOptions, 
         JsonSerializerOptions sendTransactionJsonOptions)
