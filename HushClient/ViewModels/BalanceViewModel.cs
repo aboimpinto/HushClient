@@ -1,8 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
-using HushClient.ApplicationSettings;
+using HushClient.Account;
 using HushClient.GlobalEvents;
 using HushClient.Model;
 using HushEcosystem.Model.Blockchain;
@@ -16,7 +17,7 @@ public class BalanceViewModel :
     ViewModelBase,
     IHandle<RefreshFeedsEvent>
 {
-    private readonly IApplicationSettingsManager _applicationSettingsManager;
+    private readonly IAccountService _accountService;
     private readonly INavigationManager _navigationManager;
 
     public BlockchainInformation BlockchainInformation { get; }
@@ -26,15 +27,16 @@ public class BalanceViewModel :
 
     public BalanceViewModel(
         BlockchainInformation blockchainInformation, 
-        IApplicationSettingsManager applicationSettingsManager,
+        IAccountService accountService,
         LocalInformation localInformation,
         INavigationManager navigationManager,
         IEventAggregator eventAggregator)
     {
         this.BlockchainInformation = blockchainInformation;
-        this._applicationSettingsManager = applicationSettingsManager;
+        this._accountService = accountService;
         this.LocalInformation = localInformation;
         this._navigationManager = navigationManager;
+
         eventAggregator.Subscribe(this);
 
         this.SubscribedFeeds = new ObservableCollection<SubscribedFeed>();
@@ -53,6 +55,8 @@ public class BalanceViewModel :
 
     public void Handle(RefreshFeedsEvent message)
     {
+        Console.WriteLine("Refreshing feeds...");
+
         this.LocalInformation.SubscribedFeeds.ForEach(x => 
         {
             if (this.SubscribedFeeds.Any(f => f.FeedId == x.FeedId))
@@ -87,7 +91,7 @@ public class BalanceViewModel :
                 {
                     FeedId = x.FeedId,
                     FeedType = x.FeedType,
-                    PublicAddressView = $"{this._applicationSettingsManager.UserProfile.ProfileName} (You)",
+                    PublicAddressView = $"{this._accountService.UserProfile.ProfileName} (You)",
                     PublicAddress = x.FeedPublicEncriptAddress,
                     PrivateKey = x.FeedPrivateEncriptAddress
                 };

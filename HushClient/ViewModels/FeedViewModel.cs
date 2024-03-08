@@ -11,7 +11,7 @@ using HushClient.Model;
 using HushClient.GlobalEvents;
 using HushClient.Workflows;
 using HushClient.ApplicationSettings;
-using Org.BouncyCastle.Asn1;
+using HushClient.Account;
 
 namespace HushClient.ViewModels;
 
@@ -28,6 +28,7 @@ public class FeedViewModel :
     private string _feedName;
     private readonly IHushClientWorkflow _hushClientWorkflow;
     private readonly IApplicationSettingsManager _applicationSettingsManager;
+    private readonly IAccountService _accountService;
 
     public BlockchainInformation BlockchainInformation { get; }
     public LocalInformation LocalInformation { get; }
@@ -62,13 +63,14 @@ public class FeedViewModel :
         IHushClientWorkflow hushClientWorkflow,
         BlockchainInformation blockchainInformation, 
         LocalInformation localInformation,
-        IApplicationSettingsManager applicationSettingsManager,
+        IAccountService accountService,
         IEventAggregator eventAggregator)
     {
         this._hushClientWorkflow = hushClientWorkflow;
         this.BlockchainInformation = blockchainInformation;
         this.LocalInformation = localInformation;
-        this._applicationSettingsManager = applicationSettingsManager;
+        this._accountService = accountService;
+
         eventAggregator.Subscribe(this);
 
         this.FeedMessages = new ObservableCollection<FeedMessageUI>();
@@ -98,8 +100,8 @@ public class FeedViewModel :
                         this.FeedMessages.Add(
                             x
                                 .ToFeedMessageUI(true)
-                                .SetOwnMessage(this._applicationSettingsManager.UserProfile.PublicSigningAddress)
-                                .DecryptFeedMessage(this._applicationSettingsManager.UserProfile.PrivateEncryptKey));
+                                .SetOwnMessage(this._accountService.UserProfile.PublicSigningAddress)
+                                .DecryptFeedMessage(this._accountService.UserProfile.PrivateEncryptKey));
                     });
 
                 this.ScrollMessageToEnd = true;
@@ -122,8 +124,8 @@ public class FeedViewModel :
             this.FeedMessages.Add(
                 sentMessage
                     .ToFeedMessageUI()
-                    .SetOwnMessage(this._applicationSettingsManager.UserProfile.PublicSigningAddress)
-                    .DecryptFeedMessage(this._applicationSettingsManager.UserProfile.PrivateEncryptKey));
+                    .SetOwnMessage(this._accountService.UserProfile.PublicSigningAddress)
+                    .DecryptFeedMessage(this._accountService.UserProfile.PrivateEncryptKey));
         }
 
         this.MessageToSend = string.Empty;
@@ -154,8 +156,8 @@ public class FeedViewModel :
             this.FeedMessages.Add(
                 message.FeedMessage
                     .ToFeedMessageUI(false)
-                    .SetOwnMessage(this._applicationSettingsManager.UserProfile.PublicSigningAddress)
-                    .DecryptFeedMessage(this._applicationSettingsManager.UserProfile.PrivateEncryptKey));
+                    .SetOwnMessage(this._accountService.UserProfile.PublicSigningAddress)
+                    .DecryptFeedMessage(this._accountService.UserProfile.PrivateEncryptKey));
         }
 
         this.ScrollMessageToEnd = true;
@@ -165,7 +167,7 @@ public class FeedViewModel :
     {
         if (selectedFeed.FeedType == HushEcosystem.Model.Blockchain.FeedTypeEnum.Personal)
         {
-            return $"{this._applicationSettingsManager.UserProfile.ProfileName} (You)";
+            return $"{this._accountService.UserProfile.ProfileName} (You)";
         }
 
         return "Unknown Feed Name";

@@ -1,0 +1,43 @@
+<UserControl 
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
+  xmlns:ia="clr-namespace:Avalonia.Xaml.Interactions.Core;assembly=Avalonia.Xaml.Interactions"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+  x:Class="HushClient.Views.NewAccountView">
+  
+  <StackPanel>
+    <TextBlock Text="Create a new account" FontSize="20" Margin="0,0,0,20"/>
+    <TextBox Text="{Binding ProfileName}" Watermark="Profile Name" Margin="0,0,0,20">
+      <i:Interaction.Behaviors>
+        <ia:EventTriggerBehavior EventName="TextChanged">
+          <ia:InvokeCommandAction Command="{Binding ProfileNameChangedCommand}"/>
+        </ia:EventTriggerBehavior>
+      </i:Interaction.Behaviors>
+    </TextBox>
+    <CheckBox Content="Is your profile searchable?" IsChecked="{Binding UsePassword}"/>
+    
+    <Button Content="Generate keys" Command="{Binding GenerateKeysCommand}" Margin="0,0,0,20"/>
+    <StackPanel IsVisible="{Binding AreKeysGenerated}">
+      <TextBlock Text="Public Key" FontSize="20" Margin="0,0,0,20"/>
+      <TextBox Text="{Binding SigningPublicKey}" IsReadOnly="true" Margin="0,0,0,20"/>
+      
+      <TextBlock Text="Private Key" FontSize="20" Margin="0,0,0,20"/>
+      <TextBox Text="{Binding SigningPrivateKey}" IsReadOnly="true" Margin="0,0,0,20"/>
+
+      <TextBlock Text="Encryption Public Key" FontSize="20" Margin="0,0,0,20"/>
+      <TextBox Text="{Binding EncryptPublicKey}" IsReadOnly="true" Margin="0,0,0,20"/>
+
+      <TextBlock Text="Encryption Private Key" FontSize="20" Margin="0,0,0,20"/>
+      <TextBox Text="{Binding EncryptPrivateKey}" IsReadOnly="true" Margin="0,0,0,20"/>
+    </StackPanel>
+
+    <Button 
+      Content="Create Profile" 
+      Command="{Binding CreateProfileCommand}" 
+      Margin="0,0,0,20"/>
+  </StackPanel>
+
+</UserControl>

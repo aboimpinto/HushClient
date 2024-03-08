@@ -8,7 +8,6 @@ using Olimpo.NavigationManager;
 using HushEcosystem;
 using HushClient.Model;
 using HushClient.ViewModels;
-using System;
 using System.Linq;
 
 namespace HushClient;
@@ -69,13 +68,8 @@ public partial class App : Application
             .RegisterTcpClientService()
             .RegisterHushClientServices()
             .RegisterRpcModel()
-            .RegisterApplicationSettings();
-
-        serviceCollection.AddSingleton<BlockchainInformation>();
-        serviceCollection.AddSingleton<LocalInformation>();
-
-        serviceCollection.AddScoped<ViewModelBase, BalanceViewModel>("BalanceViewModel");
-        serviceCollection.AddScoped<ViewModelBase, FeedViewModel>("FeedViewModel");
+            .RegisterApplicationSettings()
+            .RegisterAccountService();
 
         ServiceCollectionManager.SetServiceProvider(serviceCollection);
 

@@ -2,7 +2,6 @@ using System;
 using System.Threading.Tasks;
 using HushClient.ApplicationSettings;
 using HushClient.TcpClient;
-using HushEcosystem;
 using Microsoft.Extensions.Logging;
 using Olimpo;
 using HushEcosystem.Model.Rpc.Handshake;
@@ -22,20 +21,23 @@ using System.Linq;
 using HushClient.GlobalEvents;
 using HushEcosystem.Model.Rpc.Profiles;
 using System.Text.Json;
-using DynamicData.Binding;
+using HushClient.Account;
 
 namespace HushClient.Workflows;
 
 public class HushClientWorkflow : 
     IHushClientWorkflow,
     IHandleAsync<HandshakeRespondedEvent>,
+    IHandleAsync<ProfileUserLoadedEvent>,
     IHandleAsync<BlockchainHeightRespondedEvent>,
     IHandleAsync<TransactionsWithAddressRespondedEvent>,
     IHandleAsync<BalanceByAddressRespondedEvent>,
     IHandleAsync<FeedTransactionHandledEvent>,
     IHandleAsync<FeedMessageTransactionHandledEvent>
 {
+    private readonly IProfileWorkflow _profileWorkflow;
     private readonly IApplicationSettingsManager _applicationSettingsManager;
+    private readonly IAccountService _accountService;
     private readonly ITcpClientService _tcpClientService;
     private readonly IBootstrapperManager _bootstrapperManager;
     private readonly BlockchainInformation _blockchainInformation;
@@ -48,8 +50,14 @@ public class HushClientWorkflow :
 
     private bool _ownFeedFound = false;
 
+    private bool _isConnected = false;
+
+    private bool _isProfileLoaded = false;
+
     public HushClientWorkflow(
+        IProfileWorkflow profileWorkflow,
         IApplicationSettingsManager applicationSettingsManager,
+        IAccountService accountService,
         ITcpClientService tcpClientService,
         IBootstrapperManager bootstrapperManager,
         BlockchainInformation blockchainInformation,
@@ -60,7 +68,9 @@ public class HushClientWorkflow :
         IEnumerable<ITransactionHandlerStrategy> transactionHandlerStrategies,
         ILogger<HushClientWorkflow> logger)
     {
+        this._profileWorkflow = profileWorkflow;
         this._applicationSettingsManager = applicationSettingsManager;
+        this._accountService = accountService;
         this._tcpClientService = tcpClientService;
         this._bootstrapperManager = bootstrapperManager;
         this._blockchainInformation = blockchainInformation;
@@ -80,13 +90,14 @@ public class HushClientWorkflow :
     {
         this._logger.LogInformation("Starting HushClientWorkflow...");
 
-
         this._bootstrapperManager.AllModulesBootstrapped.Subscribe(async x => 
         {
             await this.InitiateHandShake();
         });
 
         await this._bootstrapperManager.Start();
+
+        await this._navigationManager.NavigateAsync("BalanceViewModel");
     }
 
     public async Task<FeedMessage?> SendMessage(string feedId, string message)
@@ -98,8 +109,8 @@ public class HushClientWorkflow :
 
         var feedMessage = new FeedMessageBuilder()
             .WithFeedId(feedId)
-            .WithMessageIssuer(this._applicationSettingsManager.UserProfile.PublicSigningAddress)
-            .WithMessage(EncryptKeys.Encrypt(message, _applicationSettingsManager.UserProfile.PublicEncryptAddress))
+            .WithMessageIssuer(this._accountService.UserProfile.PublicSigningAddress)
+            .WithMessage(EncryptKeys.Encrypt(message, _accountService.UserProfile.PublicEncryptAddress))
             .Build();
 
         var hashTransactionJsonOptions = new JsonSerializerOptionsBuilder()
@@ -116,7 +127,7 @@ public class HushClientWorkflow :
             .Build();
 
         feedMessage.HashObject(hashTransactionJsonOptions);
-        feedMessage.Sign(this._applicationSettingsManager.UserProfile.PublicSigningAddress, signTransactionJsonOptions);
+        feedMessage.Sign(this._accountService.UserProfile.PublicSigningAddress, signTransactionJsonOptions);
 
         var sendMessageRequest = new SendFeedMessageRequest
         {
@@ -152,22 +163,58 @@ public class HushClientWorkflow :
         if (message.HandshakeResponse.Result)
         {
             // Handshake accepted
-            await this._navigationManager.NavigateAsync("BalanceViewModel");
-
-            this._localInformation.IsSynching = true;
-
-            var sendTransactionJsonOptions = new JsonSerializerOptionsBuilder()
-                .WithTransactionBaseConverter(this._transactionBaseConverter)
-                .Build();
-
-            // Request the height of the blockchain
-            var blockchainHeightRequest = new BlockchainHeightRequest();
-            await this._tcpClientService.Send(blockchainHeightRequest.ToJson(sendTransactionJsonOptions));
+            await this._profileWorkflow.LoadAccountsAsync();
+            this._isConnected = true;
         }
         else
         {
             // Handshake not accepted
             // TODO [AboimPinto] Need to implement in case the Handshake is not implemented.
+            this._isConnected = false;
+        }
+    }
+
+    public async Task HandleAsync(ProfileUserLoadedEvent message)
+    {
+        var sendBlockchainHeightRequestTransactionJsonOptions = new JsonSerializerOptionsBuilder()
+            .WithTransactionBaseConverter(this._transactionBaseConverter)
+            .Build();
+
+        var blockchainHeight = new BlockchainHeightRequest();
+        await this._tcpClientService.Send(blockchainHeight.ToJson(sendBlockchainHeightRequestTransactionJsonOptions));
+
+        if (!this._isProfileLoaded)
+        {
+            this._isProfileLoaded = true;
+
+            // await this._navigationManager.NavigateAsync("BalanceViewModel");
+
+            var hashTransactionJsonOptions = new JsonSerializerOptionsBuilder()
+                .WithTransactionBaseConverter(this._transactionBaseConverter)
+                .WithModifierExcludeSignature()
+                .WithModifierExcludeBlockIndex()
+                .WithModifierExcludeHash()
+                .Build();
+
+            var signTransactionJsonOptions = new JsonSerializerOptionsBuilder()
+                .WithTransactionBaseConverter(this._transactionBaseConverter)
+                .WithModifierExcludeSignature()
+                .WithModifierExcludeBlockIndex()
+                .Build();
+
+            var sendTransactionJsonOptions = new JsonSerializerOptionsBuilder()
+                .WithTransactionBaseConverter(this._transactionBaseConverter)
+                .WithModifierExcludeBlockIndex()
+                .Build();
+
+            // Create UserProfile
+            await this.CreateUserProfileOnBlockchainAsync(hashTransactionJsonOptions, signTransactionJsonOptions, sendTransactionJsonOptions);
+
+            // Create Personal Feed
+            await this.CreatePersonalFeedAsync(hashTransactionJsonOptions, signTransactionJsonOptions, sendTransactionJsonOptions);
+
+            // HACK [AboimPinto] 2024.03.04 Create a chat feed with the other user
+            // await this.CreateFeedWithAboimPintoAsync(hashTransactionJsonOptions, signTransactionJsonOptions, sendTransactionJsonOptions);
         }
     }
 
@@ -181,7 +228,7 @@ public class HushClientWorkflow :
 
         // Request all transactions since last sync for the address
         var lastTransactionsRequest = new TransationsWithAddressRequestBuilder()
-            .WithAddress(this._applicationSettingsManager.UserProfile.PublicSigningAddress)
+            .WithAddress(this._accountService.UserProfile.PublicSigningAddress)
             .WithLastHeightSynched(this._applicationSettingsManager.BlockchainInfo.LastHeightSynched)
             .Build();
 
@@ -193,6 +240,8 @@ public class HushClientWorkflow :
         var sendTransactionJsonOptions = new JsonSerializerOptionsBuilder()
             .WithTransactionBaseConverter(this._transactionBaseConverter)
             .Build();
+
+        Console.WriteLine($"--> {DateTime.UtcNow}: {message.TransactionsWithAddressResponse.Transactions.Count} until {message.TransactionsWithAddressResponse.BlockHeightSyncPoint}");
 
         if (message.TransactionsWithAddressResponse != null && message.TransactionsWithAddressResponse.Transactions != null)
         {
@@ -209,7 +258,7 @@ public class HushClientWorkflow :
         this._applicationSettingsManager.BlockchainInfo.LastHeightSynched = message.TransactionsWithAddressResponse.BlockHeightSyncPoint;
 
         var BalanceByAddressRequest = new BalanceByAddressRequestBuilder()
-            .WithAddress(this._applicationSettingsManager.UserProfile.PublicSigningAddress)
+            .WithAddress(this._accountService.UserProfile.PublicSigningAddress)
             .Build();
 
         await this._tcpClientService.Send(BalanceByAddressRequest.ToJson(sendTransactionJsonOptions));
@@ -231,14 +280,19 @@ public class HushClientWorkflow :
 
     public async Task HandleAsync(FeedTransactionHandledEvent message)
     {
+        Console.WriteLine("Handling new feed...");
+
         if (this._localInformation.SubscribedFeeds.Any(x => x.FeedId == message.Feed.FeedId))
         {
+            Console.WriteLine("Feed already subscribed");
+
             // Feed already exists
             // TODO [AboimPinto] Need to implement in case the Feed already exists. 
             // Maybe this should be Blockchain validation. Should now allow to create feeds that already exists.
             return;
         }
 
+        Console.WriteLine("Feed subscribed and RefreshFeedsEvent published");
         this._localInformation.SubscribedFeeds.Add(message.Feed);
         await this._eventAggregator.PublishAsync(new RefreshFeedsEvent());
     }
@@ -282,13 +336,13 @@ public class HushClientWorkflow :
                 .Build();
 
             // Create UserProfile
-            await this.CreateUserProfileOnBlockchainAsync(hashTransactionJsonOptions, signTransactionJsonOptions, sendTransactionJsonOptions);
+            // await this.CreateUserProfileOnBlockchainAsync(hashTransactionJsonOptions, signTransactionJsonOptions, sendTransactionJsonOptions);
 
             // Create Personal Feed
-            await this.CreatePersonalFeedAsync(hashTransactionJsonOptions, signTransactionJsonOptions, sendTransactionJsonOptions);
+            // await this.CreatePersonalFeedAsync(hashTransactionJsonOptions, signTransactionJsonOptions, sendTransactionJsonOptions);
 
             // HACK [AboimPinto] 2024.03.04 Create a chat feed with the other user
-            await this.CreateFeedWithAboimPintoAsync(hashTransactionJsonOptions, signTransactionJsonOptions, sendTransactionJsonOptions);
+            // await this.CreateFeedWithAboimPintoAsync(hashTransactionJsonOptions, signTransactionJsonOptions, sendTransactionJsonOptions);
         }
     }
 
@@ -301,15 +355,15 @@ public class HushClientWorkflow :
 
         // For the Personal Feed, the Owner and the Participant are the same
         var personalFeed = new FeedBuilder()
-            .WithFeedOwner(this._applicationSettingsManager.UserProfile.PublicSigningAddress)
-            .WithFeedParticipantPublicAddress(this._applicationSettingsManager.UserProfile.PublicSigningAddress)
+            .WithFeedOwner(this._accountService.UserProfile.PublicSigningAddress)
+            .WithFeedParticipantPublicAddress(this._accountService.UserProfile.PublicSigningAddress)
             .WithFeedType(FeedTypeEnum.Personal)
             .WithPublicEncriptAddress(feedEncryptionKeys.PublicKey)
             .WithPrivateEncriptAddress(feedEncryptionKeys.PrivateKey)
             .Build();
 
         personalFeed.HashObject(hashTransactionJsonOptions);
-        personalFeed.Sign(this._applicationSettingsManager.UserProfile.PublicSigningAddress, signTransactionJsonOptions);
+        personalFeed.Sign(this._accountService.UserProfile.PublicSigningAddress, signTransactionJsonOptions);
 
         var newFeedRequest = new NewFeedRequest
         {
@@ -326,14 +380,14 @@ public class HushClientWorkflow :
         JsonSerializerOptions sendTransactionJsonOptions)
     {
         var userProfile = new UserProfileBuilder()
-            .WithPublicSigningAddress(this._applicationSettingsManager.UserProfile.PublicSigningAddress)
-            .WithPublicEncryptAddress(this._applicationSettingsManager.UserProfile.PublicEncryptAddress)
-            .WithUserName(this._applicationSettingsManager.UserProfile.ProfileName)
-            .WithIsPublicFlag(this._applicationSettingsManager.UserProfile.IsPublic)
+            .WithPublicSigningAddress(this._accountService.UserProfile.PublicSigningAddress)
+            .WithPublicEncryptAddress(this._accountService.UserProfile.PublicEncryptAddress)
+            .WithUserName(this._accountService.UserProfile.ProfileName)
+            .WithIsPublicFlag(this._accountService.UserProfile.IsPublic)
             .Build();
 
         userProfile.HashObject(hashTransactionJsonOptions);
-        userProfile.Sign(this._applicationSettingsManager.UserProfile.PublicSigningAddress, signTransactionJsonOptions);
+        userProfile.Sign(this._accountService.UserProfile.PublicSigningAddress, signTransactionJsonOptions);
 
         var userProfileRequest = new UserProfileRequest
         {
@@ -352,15 +406,15 @@ public class HushClientWorkflow :
 
         // Add user to ChatFeed
         var participantMeToFeed = new FeedBuilder()
-            .WithFeedOwner(this._applicationSettingsManager.UserProfile.PublicSigningAddress)
-            .WithFeedParticipantPublicAddress(this._applicationSettingsManager.UserProfile.PublicSigningAddress)
+            .WithFeedOwner(this._accountService.UserProfile.PublicSigningAddress)
+            .WithFeedParticipantPublicAddress(this._accountService.UserProfile.PublicSigningAddress)
             .WithFeedType(FeedTypeEnum.Chat)
             .WithPublicEncriptAddress(feedEncryptionKeys.PublicKey)
             .WithPrivateEncriptAddress(feedEncryptionKeys.PrivateKey)
             .Build();
 
         participantMeToFeed.HashObject(hashTransactionJsonOptions);
-        participantMeToFeed.Sign(this._applicationSettingsManager.UserProfile.PublicSigningAddress, signTransactionJsonOptions);
+        participantMeToFeed.Sign(this._accountService.UserProfile.PublicSigningAddress, signTransactionJsonOptions);
 
         var meFeedRequest = new NewFeedRequest
         {
@@ -371,7 +425,7 @@ public class HushClientWorkflow :
 
         // Add user to ChatFeed
         var participantOtherToFeed = new FeedBuilder()
-            .WithFeedOwner(this._applicationSettingsManager.UserProfile.PublicSigningAddress)
+            .WithFeedOwner(this._accountService.UserProfile.PublicSigningAddress)
             .WithFeedParticipantPublicAddress("04f505dab724c28db882376ca25d470cbabdc188f15a20a2083f49756bc00dd12ac44679afc9f4d658df07310f68191a633e31cd80ccf407a6a065d5b18874433f")
             .WithFeedType(FeedTypeEnum.Chat)
             .WithPublicEncriptAddress(feedEncryptionKeys.PublicKey)
@@ -379,7 +433,7 @@ public class HushClientWorkflow :
             .Build();
 
         participantOtherToFeed.HashObject(hashTransactionJsonOptions);
-        participantOtherToFeed.Sign(this._applicationSettingsManager.UserProfile.PublicSigningAddress, signTransactionJsonOptions);
+        participantOtherToFeed.Sign(this._accountService.UserProfile.PublicSigningAddress, signTransactionJsonOptions);
 
         var otherFeedRequest = new NewFeedRequest
         {
@@ -388,6 +442,5 @@ public class HushClientWorkflow :
         
         await this._tcpClientService.Send(otherFeedRequest.ToJson(sendTransactionJsonOptions));
     }
-
 }
 
