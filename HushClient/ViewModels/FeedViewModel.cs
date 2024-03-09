@@ -29,6 +29,7 @@ public class FeedViewModel :
     private readonly IHushClientWorkflow _hushClientWorkflow;
     private readonly IApplicationSettingsManager _applicationSettingsManager;
     private readonly IAccountService _accountService;
+    private readonly INavigationManager _navigationManager;
 
     public BlockchainInformation BlockchainInformation { get; }
     public LocalInformation LocalInformation { get; }
@@ -64,13 +65,14 @@ public class FeedViewModel :
         BlockchainInformation blockchainInformation, 
         LocalInformation localInformation,
         IAccountService accountService,
+        INavigationManager navigationManager,
         IEventAggregator eventAggregator)
     {
         this._hushClientWorkflow = hushClientWorkflow;
         this.BlockchainInformation = blockchainInformation;
         this.LocalInformation = localInformation;
         this._accountService = accountService;
-
+        this._navigationManager = navigationManager;
         eventAggregator.Subscribe(this);
 
         this.FeedMessages = new ObservableCollection<FeedMessageUI>();
@@ -131,6 +133,11 @@ public class FeedViewModel :
         this.MessageToSend = string.Empty;
         this.MessageToSentFocus = true;
         this.ScrollMessageToEnd = true;
+    }
+
+    public void BackCommand()
+    {
+        this._navigationManager.NavigateAsync("BalanceViewModel");
     }
 
     public void Handle(RefreshFeedMessagesEvent message)

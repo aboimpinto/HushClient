@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.002.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HushClient.Account", "HushClient.Account.csproj", "{1AD2D5E7-2C2B-4326-AEF5-A08D378A9AED}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1AD2D5E7-2C2B-4326-AEF5-A08D378A9AED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1AD2D5E7-2C2B-4326-AEF5-A08D378A9AED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1AD2D5E7-2C2B-4326-AEF5-A08D378A9AED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1AD2D5E7-2C2B-4326-AEF5-A08D378A9AED}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {58C92E75-0B38-4799-8C0A-DC67C90E32E3}
+	EndGlobalSection
+EndGlobal
