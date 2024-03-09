@@ -38,6 +38,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HushEcosystem.Model", "Modu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HushClient.Account", "Services\HushClient.Account\HushClient.Account.csproj", "{B00EF261-036C-46A4-A9B8-06A9093C3BAA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Olimpo.Controls", "Modules\Olimpo.Controls\Olimpo.Controls.csproj", "{D0C69D12-256B-4D7E-A28C-CF21A1FFE01E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -92,6 +94,10 @@ Global
 		{B00EF261-036C-46A4-A9B8-06A9093C3BAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B00EF261-036C-46A4-A9B8-06A9093C3BAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B00EF261-036C-46A4-A9B8-06A9093C3BAA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0C69D12-256B-4D7E-A28C-CF21A1FFE01E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0C69D12-256B-4D7E-A28C-CF21A1FFE01E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0C69D12-256B-4D7E-A28C-CF21A1FFE01E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0C69D12-256B-4D7E-A28C-CF21A1FFE01E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -111,5 +117,6 @@ Global
 		{6B8E6B3B-65F6-4011-BBCA-C9B024118EEC} = {0A2DF6C4-C8F4-4958-9833-875B948C14A3}
 		{50B3162F-FB6A-4580-8680-55086B8FC8C6} = {8B07C552-71D9-4203-8E02-9D46C478AE6B}
 		{B00EF261-036C-46A4-A9B8-06A9093C3BAA} = {0A2DF6C4-C8F4-4958-9833-875B948C14A3}
+		{D0C69D12-256B-4D7E-A28C-CF21A1FFE01E} = {8B07C552-71D9-4203-8E02-9D46C478AE6B}
 	EndGlobalSection
 EndGlobal
