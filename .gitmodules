@@ -16,6 +16,3 @@
 [submodule "Modules/HushEcosystem.Model"]
 	path = Modules/HushEcosystem.Model
 	url = git@github.com:aboimpinto/HushEcosystem.Model.git
-[submodule "Modules/Olimpo.Controls"]
-	path = Modules/Olimpo.Controls
-	url = git@github.com:aboimpinto/Olimpo.Controls.git
