@@ -23,6 +23,8 @@
         Content="Search" 
         Command="{Binding SearchProfileCommand}" 
         Margin="0,0,0,20"/>
+
+      <TextBlock Text="{Binding ErrorMessage}" FontSize="20" Margin="0,0,0,20"/>
     </StackPanel>
 
     <Grid Grid.Row="2" Grid.ColumnDefinitions="* *" HorizontalAlignment="Stretch">

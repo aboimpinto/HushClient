@@ -1,20 +1,28 @@
 using System.Threading.Tasks;
+using HushClient.Account;
 using HushClient.Model;
 using HushClient.Workflows;
+using HushEcosystem.Model.GlobalEvents;
 using HushEcosystem.Model.Rpc;
 using HushEcosystem.Model.Rpc.Profiles;
 using Microsoft.CodeAnalysis.CSharp;
+using Olimpo;
 using Olimpo.NavigationManager;
 using ReactiveUI;
 
 namespace HushClient.ViewModels;
 
-public class SearchAccountsViewModel : ViewModelBase
+public class SearchAccountsViewModel : 
+    ViewModelBase,
+    IHandle<SearchAccountByPublicKeyRespondedEvent>
 {
     private readonly IProfileWorkflow _profileWorkflow;
+    private readonly IAccountService _accountService;
     private readonly INavigationManager _navigationManager;
+    private readonly IEventAggregator _eventAggregator;
     private string _profileName;
     private string _userProfileKey;
+    private string _errorMessage = string.Empty;
 
     public BlockchainInformation BlockchainInformation { get; }
     public LocalInformation LocalInformation { get; }
@@ -31,17 +39,28 @@ public class SearchAccountsViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref this._userProfileKey, value); 
     }
 
+    public string ErrorMessage 
+    { 
+        get => this._errorMessage; 
+        set => this.RaiseAndSetIfChanged(ref this._errorMessage, value); 
+    }
+
     public SearchAccountsViewModel(
         IProfileWorkflow profileWorkflow,
         BlockchainInformation blockchainInformation,
         LocalInformation localInformation,
-        INavigationManager navigationManager)
+        IAccountService accountService,
+        INavigationManager navigationManager,
+        IEventAggregator eventAggregator)
     {
         this._profileWorkflow = profileWorkflow;
         this.BlockchainInformation = blockchainInformation;
         this.LocalInformation = localInformation;
-
+        this._accountService = accountService;
         this._navigationManager = navigationManager;
+        this._eventAggregator = eventAggregator;
+
+        this._eventAggregator.Subscribe(this);
     }
 
     public async Task SearchProfileCommand()
@@ -55,6 +74,19 @@ public class SearchAccountsViewModel : ViewModelBase
         else if(!string.IsNullOrEmpty(this.ProfileName))
         {
             // search by profile name
+        }
+    }
+
+    public void Handle(SearchAccountByPublicKeyRespondedEvent message)
+    {
+        if (!message.SearchAccountByPublicKeyResponse.Result)
+        {
+            this.ErrorMessage = message.SearchAccountByPublicKeyResponse.FailureReason;
+        }
+        else
+        {
+            if (message.SearchAccountByPublicKeyResponse.UserProfile.UserPublicSigningAddress == this._accountService.UserProfile.PublicSigningAddress)
+            this.ErrorMessage = "Cannot create feed for yourself.";
         }
     }
 }
