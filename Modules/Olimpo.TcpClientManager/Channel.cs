@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
@@ -97,13 +98,32 @@ public class Channel : IDisposable
             {
                 do
                 {
-                    var numberOfBytesRead = stream.Read(buffer, 0, buffer.Length);
-                    ms.Write(buffer, 0, numberOfBytesRead);
+                    try
+                    {
+                        var numberOfBytesRead = stream.Read(buffer, 0, buffer.Length);
+                        ms.Write(buffer, 0, numberOfBytesRead);
+                    }
+                    catch (IOException)
+                    {
+                        // TODO [AboimPinto] Why an exception is thrown here:
+
+                        if (this._cancellationTokenSource.IsCancellationRequested)
+                        {
+                            // the Client is being disposed
+                            break;
+                        }
+
+                        // the client lost connection with the server. Need to be handled
+                        throw;
+                    }
 
                 } while(!this._cancellationTokenSource.IsCancellationRequested && stream.DataAvailable);
 
                 data = Encoding.ASCII.GetString(ms.ToArray(), 0, (int)ms.Length);
-                this._client.DataReceived?.OnNext(new DataReceivedArgs(data));
+                if (!string.IsNullOrEmpty(data))
+                {
+                    this._client.DataReceived?.OnNext(new DataReceivedArgs(data));
+                }
             }
         }
     }
