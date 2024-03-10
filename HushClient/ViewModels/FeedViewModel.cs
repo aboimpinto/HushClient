@@ -27,7 +27,6 @@ public class FeedViewModel :
     private bool _scrollMessageToEnd;
     private string _feedName;
     private readonly IHushClientWorkflow _hushClientWorkflow;
-    private readonly IApplicationSettingsManager _applicationSettingsManager;
     private readonly IAccountService _accountService;
     private readonly INavigationManager _navigationManager;
 
@@ -52,7 +51,7 @@ public class FeedViewModel :
         set => this.RaiseAndSetIfChanged(ref this._scrollMessageToEnd, value); 
     }
 
-    public ObservableCollection<FeedMessageUI> FeedMessages { get; }
+    public ObservableCollection<FeedMessageUI> FeedMessages { get; private set; }
 
     public string MessageToSend 
     { 
@@ -74,12 +73,12 @@ public class FeedViewModel :
         this._accountService = accountService;
         this._navigationManager = navigationManager;
         eventAggregator.Subscribe(this);
-
-        this.FeedMessages = new ObservableCollection<FeedMessageUI>();
     }
 
     public Task LoadAsync(IDictionary<string, object>? parameters = null)
     {
+        this.FeedMessages = new ObservableCollection<FeedMessageUI>();
+
         if (parameters != null && parameters.ContainsKey("SelectedSubscribedFeed"))
         {
             var selectedFeed = parameters["SelectedSubscribedFeed"] as SubscribedFeed;

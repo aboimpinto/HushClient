@@ -1,0 +1,66 @@
+<Styles 
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:controls="using:Olimpo.Controls">
+  
+  <Design.PreviewWith>
+    <Border Padding="20">
+      <!-- Add Controls for Previewer Here -->
+    </Border>
+  </Design.PreviewWith>
+
+  <Style Selector="controls|IconButton">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Width" Value="32" />
+    <Setter Property="Height" Value="32" />
+    <Setter Property="HorizontalAlignment" Value="Center" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Background="#00000000">
+          <Viewbox>
+            <Path 
+              Data="{TemplateBinding Data}"
+              Fill="White" />
+          </Viewbox>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+
+  <Style Selector="controls|IconButton /template/ Border">
+    <Setter Property="Transitions">
+      <Transitions>
+        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1" />
+      </Transitions>
+    </Setter>
+  </Style>
+
+  <Style Selector="controls|IconButton /template/ Viewbox">
+    <Setter Property="Width" Value="24" />
+    <Setter Property="Height" Value="24" />
+    <Setter Property="HorizontalAlignment" Value="Center" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+
+  <Style Selector="controls|IconButton /template/ Path">
+    <Setter Property="Fill" Value="Gray" />
+    <Setter Property="Width" Value="32" />
+    <Setter Property="Height" Value="32" />
+    <Setter Property="Stretch" Value="Uniform" />
+    <Setter Property="Margin" Value="0,0,0,0" />
+  </Style>
+
+  <Style Selector="controls|IconButton:pointerover /template/ Path">
+    <Setter Property="Fill" Value="White" />
+  </Style>
+
+  <Style Selector="controls|IconButton:pointerover /template/ Border">
+    <Setter Property="RenderTransform" Value="scale(1.2)" />
+  </Style>
+
+  <Style Selector="controls|IconButton:pressed /template/ Border">
+    <Setter Property="RenderTransform" Value="scale(1)" />
+  </Style>
+</Styles>
