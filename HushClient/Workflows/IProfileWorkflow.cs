@@ -8,4 +8,6 @@ public interface IProfileWorkflow
     Task SetNewProfileAsync(UserProfile userProfile);
 
     Task LoadAccountsAsync();
+
+    Task SearchAccountByPublicKeyAsync(string publicKey);
 }

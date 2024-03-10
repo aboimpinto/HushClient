@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
+using System.Threading.Tasks;
 using HushClient.Account;
 using HushClient.GlobalEvents;
 using HushClient.Model;
@@ -41,6 +42,11 @@ public class BalanceViewModel :
 
         this.SubscribedFeeds = new ObservableCollection<SubscribedFeed>();
         this.FeedSelectCommand = ReactiveCommand.Create<SubscribedFeed>(this.OnFeedSelect);
+    }
+
+    public async Task NewFeedCommand()
+    {
+        await this._navigationManager.NavigateAsync("SearchAccountsViewModel");
     }
 
     private void OnFeedSelect(SubscribedFeed subscribedFeed)

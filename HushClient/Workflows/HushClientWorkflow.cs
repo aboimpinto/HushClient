@@ -241,7 +241,8 @@ public class HushClientWorkflow :
             .WithTransactionBaseConverter(this._transactionBaseConverter)
             .Build();
 
-        Console.WriteLine($"--> {DateTime.UtcNow}: {message.TransactionsWithAddressResponse.Transactions.Count} until {message.TransactionsWithAddressResponse.BlockHeightSyncPoint}");
+        // HACK: [AboimPinto] For debug purposes
+        // Console.WriteLine($"--> {DateTime.UtcNow}: {message.TransactionsWithAddressResponse.Transactions.Count} until {message.TransactionsWithAddressResponse.BlockHeightSyncPoint}");
 
         if (message.TransactionsWithAddressResponse != null && message.TransactionsWithAddressResponse.Transactions != null)
         {

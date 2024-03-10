@@ -1,0 +1,36 @@
+<UserControl 
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+  x:Class="HushClient.Views.SearchAccountsView">
+  
+  <Grid RowDefinitions="Auto * 80">
+    <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5">
+      <TextBlock Text="Balance: " />
+      <TextBlock Text="{Binding LocalInformation.Balance}" />
+    </StackPanel>
+
+    <StackPanel Grid.Row="1">
+      <TextBlock Text="Search by Profile Name" FontSize="20" Margin="0,0,0,20"/>
+      <TextBox Text="{Binding ProfileName}" Watermark="Profile Name" Margin="0,0,0,20" />
+
+      <TextBlock Text="Search by user Public Key" FontSize="20" Margin="0,0,0,20"/>
+      <TextBox Text="{Binding UserProfileKey}" Watermark="User Public Key" Margin="0,0,0,20" />
+      
+      <Button 
+        Content="Search" 
+        Command="{Binding SearchProfileCommand}" 
+        Margin="0,0,0,20"/>
+    </StackPanel>
+
+    <Grid Grid.Row="2" Grid.ColumnDefinitions="* *" HorizontalAlignment="Stretch">
+      <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+        <TextBlock Text="{Binding BlockchainInformation.BlockchainHeight}" />
+        <TextBlock Text=" / " />
+        <TextBlock Text="{Binding LocalInformation.LastHeightSynched}" />
+      </StackPanel>
+    </Grid>
+  </Grid>
+</UserControl>

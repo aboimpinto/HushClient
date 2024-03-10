@@ -23,6 +23,7 @@ public static class ServiceCollectionExtensions
         serviceCollection.AddScoped<ViewModelBase, BalanceViewModel>("BalanceViewModel");
         serviceCollection.AddScoped<ViewModelBase, FeedViewModel>("FeedViewModel");
         serviceCollection.AddScoped<ViewModelBase, NewAccountViewModel>("NewAccountViewModel");
+        serviceCollection.AddScoped<ViewModelBase, SearchAccountsViewModel>("SearchAccountsViewModel");
 
         return serviceCollection;
     }

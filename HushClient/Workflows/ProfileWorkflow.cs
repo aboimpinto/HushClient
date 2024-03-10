@@ -8,6 +8,7 @@ using HushEcosystem.Model.Builders;
 using HushEcosystem.Model.GlobalEvents;
 using HushEcosystem.Model.Rpc.Profiles;
 using Olimpo;
+using Org.BouncyCastle.Asn1.Utilities;
 
 namespace HushClient.Workflows;
 
@@ -64,5 +65,15 @@ public class ProfileWorkflow :
         await this._accountService.UpdateProfileUserNameAsync(message.UserProfile.UserName);
 
         await this._eventAggregator.PublishAsync(new ProfileUserLoadedEvent());
+    }
+
+    public async Task SearchAccountByPublicKeyAsync(string publicKey)
+    {
+        var request = new SearchAccountByPublicKeyRequest
+        {
+            UserPublicKey = publicKey
+        };
+
+        await this._tcpClientService.Send(request.ToJson(this.SendTransactionJsonOptions));
     }
 }
