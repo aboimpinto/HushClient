@@ -277,6 +277,13 @@ public class HushClientWorkflow :
 
         var blockchainHeight = new BlockchainHeightRequest();
         await this._tcpClientService.Send(blockchainHeight.ToJson(sendTransactionJsonOptions));
+
+        var feedsForAddressRequest = new FeedsForAddressRequest
+        {
+            Address = this._accountService.UserProfile.PublicSigningAddress,
+            SinceBlockIndex = this._localInformation.LastHeightSynched
+        };
+        await this._tcpClientService.Send(feedsForAddressRequest.ToJson(sendTransactionJsonOptions));
     }
 
     public async Task HandleAsync(FeedTransactionHandledEvent message)
@@ -398,50 +405,50 @@ public class HushClientWorkflow :
         await this._tcpClientService.Send(userProfileRequest.ToJson(sendTransactionJsonOptions));
     }
 
-    private async Task CreateFeedWithAboimPintoAsync(
-        JsonSerializerOptions hashTransactionJsonOptions, 
-        JsonSerializerOptions signTransactionJsonOptions, 
-        JsonSerializerOptions sendTransactionJsonOptions)
-    {
-        var feedEncryptionKeys = new EncryptKeys();
+    // private async Task CreateFeedWithAboimPintoAsync(
+    //     JsonSerializerOptions hashTransactionJsonOptions, 
+    //     JsonSerializerOptions signTransactionJsonOptions, 
+    //     JsonSerializerOptions sendTransactionJsonOptions)
+    // {
+    //     var feedEncryptionKeys = new EncryptKeys();
 
-        // Add user to ChatFeed
-        var participantMeToFeed = new FeedBuilder()
-            .WithFeedOwner(this._accountService.UserProfile.PublicSigningAddress)
-            .WithFeedParticipantPublicAddress(this._accountService.UserProfile.PublicSigningAddress)
-            .WithFeedType(FeedTypeEnum.Chat)
-            .WithPublicEncriptAddress(feedEncryptionKeys.PublicKey)
-            .WithPrivateEncriptAddress(feedEncryptionKeys.PrivateKey)
-            .Build();
+    //     // Add user to ChatFeed
+    //     var participantMeToFeed = new FeedBuilder()
+    //         .WithFeedOwner(this._accountService.UserProfile.PublicSigningAddress)
+    //         .WithFeedParticipantPublicAddress(this._accountService.UserProfile.PublicSigningAddress)
+    //         .WithFeedType(FeedTypeEnum.Chat)
+    //         .WithPublicEncriptAddress(feedEncryptionKeys.PublicKey)
+    //         .WithPrivateEncriptAddress(feedEncryptionKeys.PrivateKey)
+    //         .Build();
 
-        participantMeToFeed.HashObject(hashTransactionJsonOptions);
-        participantMeToFeed.Sign(this._accountService.UserProfile.PublicSigningAddress, signTransactionJsonOptions);
+    //     participantMeToFeed.HashObject(hashTransactionJsonOptions);
+    //     participantMeToFeed.Sign(this._accountService.UserProfile.PublicSigningAddress, signTransactionJsonOptions);
 
-        var meFeedRequest = new NewFeedRequest
-        {
-            Feed = participantMeToFeed
-        };
+    //     var meFeedRequest = new NewFeedRequest
+    //     {
+    //         Feed = participantMeToFeed
+    //     };
         
-        await this._tcpClientService.Send(meFeedRequest.ToJson(sendTransactionJsonOptions));
+    //     await this._tcpClientService.Send(meFeedRequest.ToJson(sendTransactionJsonOptions));
 
-        // Add user to ChatFeed
-        var participantOtherToFeed = new FeedBuilder()
-            .WithFeedOwner(this._accountService.UserProfile.PublicSigningAddress)
-            .WithFeedParticipantPublicAddress("04f505dab724c28db882376ca25d470cbabdc188f15a20a2083f49756bc00dd12ac44679afc9f4d658df07310f68191a633e31cd80ccf407a6a065d5b18874433f")
-            .WithFeedType(FeedTypeEnum.Chat)
-            .WithPublicEncriptAddress(feedEncryptionKeys.PublicKey)
-            .WithPrivateEncriptAddress(feedEncryptionKeys.PrivateKey)
-            .Build();
+    //     // Add user to ChatFeed
+    //     var participantOtherToFeed = new FeedBuilder()
+    //         .WithFeedOwner(this._accountService.UserProfile.PublicSigningAddress)
+    //         .WithFeedParticipantPublicAddress("04f505dab724c28db882376ca25d470cbabdc188f15a20a2083f49756bc00dd12ac44679afc9f4d658df07310f68191a633e31cd80ccf407a6a065d5b18874433f")
+    //         .WithFeedType(FeedTypeEnum.Chat)
+    //         .WithPublicEncriptAddress(feedEncryptionKeys.PublicKey)
+    //         .WithPrivateEncriptAddress(feedEncryptionKeys.PrivateKey)
+    //         .Build();
 
-        participantOtherToFeed.HashObject(hashTransactionJsonOptions);
-        participantOtherToFeed.Sign(this._accountService.UserProfile.PublicSigningAddress, signTransactionJsonOptions);
+    //     participantOtherToFeed.HashObject(hashTransactionJsonOptions);
+    //     participantOtherToFeed.Sign(this._accountService.UserProfile.PublicSigningAddress, signTransactionJsonOptions);
 
-        var otherFeedRequest = new NewFeedRequest
-        {
-            Feed = participantOtherToFeed
-        };
+    //     var otherFeedRequest = new NewFeedRequest
+    //     {
+    //         Feed = participantOtherToFeed
+    //     };
         
-        await this._tcpClientService.Send(otherFeedRequest.ToJson(sendTransactionJsonOptions));
-    }
+    //     await this._tcpClientService.Send(otherFeedRequest.ToJson(sendTransactionJsonOptions));
+    // }
 }
 
