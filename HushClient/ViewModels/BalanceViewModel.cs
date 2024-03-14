@@ -63,47 +63,60 @@ public class BalanceViewModel :
     {
         Console.WriteLine("Refreshing feeds...");
 
-        this.LocalInformation.SubscribedFeeds.ForEach(x => 
+        this.LocalInformation.SubscribedFeedsDefinitions.ForEach(x => 
         {
-            if (this.SubscribedFeeds.Any(f => f.FeedId == x.FeedId))
-            {
-                var existingFeed = this.SubscribedFeeds.Single(x => x.FeedId == x.FeedId);
-                existingFeed.PublicAddress = x.FeedPublicEncriptAddress;
-                existingFeed.PrivateKey = x.FeedPrivateEncriptAddress;
-            }
-            else
-            {
-                // can only have one personal feed
-                if (this.SubscribedFeeds.IsPersonalFeedUnique())
-                {
-                    if (x.FeedType == FeedTypeEnum.Chat)
-                    {
-                        var chatFeed = new SubscribedFeed
-                        {
-                            FeedId = x.FeedId,
-                            FeedType = x.FeedType,
-                            PublicAddressView = x.FeedParticipantPublicAddress.Truncate(10),
-                            PublicAddress = x.FeedPublicEncriptAddress,
-                            PrivateKey = x.FeedPrivateEncriptAddress
-                        };
-
-                        this.SubscribedFeeds.Add(chatFeed);
-                    }
-
-                    return;
-                }
-
                 var personalFeed = new SubscribedFeed
                 {
                     FeedId = x.FeedId,
                     FeedType = x.FeedType,
                     PublicAddressView = $"{this._accountService.UserProfile.ProfileName} (You)",
-                    PublicAddress = x.FeedPublicEncriptAddress,
-                    PrivateKey = x.FeedPrivateEncriptAddress
+                    PublicAddress = x.FeedParticipant
                 };
 
                 this.SubscribedFeeds.Add(personalFeed);
-            }
         });
+
+        // this.LocalInformation.SubscribedFeeds.ForEach(x => 
+        // {
+        //     if (this.SubscribedFeeds.Any(f => f.FeedId == x.FeedId))
+        //     {
+        //         var existingFeed = this.SubscribedFeeds.Single(x => x.FeedId == x.FeedId);
+        //         existingFeed.PublicAddress = x.FeedPublicEncriptAddress;
+        //         existingFeed.PrivateKey = x.FeedPrivateEncriptAddress;
+        //     }
+        //     else
+        //     {
+        //         // can only have one personal feed
+        //         if (this.SubscribedFeeds.IsPersonalFeedUnique())
+        //         {
+        //             if (x.FeedType == FeedTypeEnum.Chat)
+        //             {
+        //                 var chatFeed = new SubscribedFeed
+        //                 {
+        //                     FeedId = x.FeedId,
+        //                     FeedType = x.FeedType,
+        //                     PublicAddressView = x.FeedParticipantPublicAddress.Truncate(10),
+        //                     PublicAddress = x.FeedPublicEncriptAddress,
+        //                     PrivateKey = x.FeedPrivateEncriptAddress
+        //                 };
+
+        //                 this.SubscribedFeeds.Add(chatFeed);
+        //             }
+
+        //             return;
+        //         }
+
+        //         var personalFeed = new SubscribedFeed
+        //         {
+        //             FeedId = x.FeedId,
+        //             FeedType = x.FeedType,
+        //             PublicAddressView = $"{this._accountService.UserProfile.ProfileName} (You)",
+        //             PublicAddress = x.FeedPublicEncriptAddress,
+        //             PrivateKey = x.FeedPrivateEncriptAddress
+        //         };
+
+        //         this.SubscribedFeeds.Add(personalFeed);
+        //     }
+        // });
     }
 }

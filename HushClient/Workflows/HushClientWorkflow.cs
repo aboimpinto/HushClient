@@ -22,6 +22,7 @@ using HushClient.GlobalEvents;
 using HushEcosystem.Model.Rpc.Profiles;
 using System.Text.Json;
 using HushClient.Account;
+using System.Threading;
 
 namespace HushClient.Workflows;
 
@@ -33,7 +34,8 @@ public class HushClientWorkflow :
     IHandleAsync<TransactionsWithAddressRespondedEvent>,
     IHandleAsync<BalanceByAddressRespondedEvent>,
     IHandleAsync<FeedTransactionHandledEvent>,
-    IHandleAsync<FeedMessageTransactionHandledEvent>
+    IHandleAsync<FeedMessageTransactionHandledEvent>,
+    IHandleAsync<FeedsForAddressRespondedEvent>
 {
     private readonly IProfileWorkflow _profileWorkflow;
     private readonly IApplicationSettingsManager _applicationSettingsManager;
@@ -319,6 +321,25 @@ public class HushClientWorkflow :
         await this._eventAggregator.PublishAsync(new RefreshFeedMessagesEvent(message.FeedMessage.FeedId));
     }
 
+    public async Task HandleAsync(FeedsForAddressRespondedEvent message)
+    {
+        foreach(var item in message.FeedsForAddressResponse.FeedDefinitions)
+        {
+            if (this._localInformation.SubscribedFeedsDefinitions.Any(x => x.FeedId == item.FeedId))
+            {
+                // the feed is already added. Just update the name
+                var feed = this._localInformation.SubscribedFeedsDefinitions.Single(x => x.FeedId == item.FeedId);
+                feed.FeedTitle = item.FeedTitle;
+            }
+            else
+            {
+                this._localInformation.SubscribedFeedsDefinitions.Add(item);
+            }
+        }
+
+        await this._eventAggregator.PublishAsync(new RefreshFeedsEvent());
+    }
+
     private async Task OnBlockChainSynchedAsync(bool synched)
     {
         if (synched && !this._ownFeedFound)
@@ -428,7 +449,7 @@ public class HushClientWorkflow :
     //     {
     //         Feed = participantMeToFeed
     //     };
-        
+
     //     await this._tcpClientService.Send(meFeedRequest.ToJson(sendTransactionJsonOptions));
 
     //     // Add user to ChatFeed
@@ -447,7 +468,7 @@ public class HushClientWorkflow :
     //     {
     //         Feed = participantOtherToFeed
     //     };
-        
+
     //     await this._tcpClientService.Send(otherFeedRequest.ToJson(sendTransactionJsonOptions));
     // }
 }
