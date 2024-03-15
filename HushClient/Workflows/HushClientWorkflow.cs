@@ -31,7 +31,6 @@ public class HushClientWorkflow :
     IHandleAsync<HandshakeRespondedEvent>,
     IHandleAsync<ProfileUserLoadedEvent>,
     IHandleAsync<BlockchainHeightRespondedEvent>,
-    IHandleAsync<TransactionsWithAddressRespondedEvent>,
     IHandleAsync<BalanceByAddressRespondedEvent>,
     IHandleAsync<FeedTransactionHandledEvent>,
     IHandleAsync<FeedMessageTransactionHandledEvent>,
@@ -226,66 +225,38 @@ public class HushClientWorkflow :
             .WithTransactionBaseConverter(this._transactionBaseConverter)
             .Build();
 
-        this._blockchainInformation.BlockchainHeight = message.BlockchainHeightResponse.Height;
-
-        // Request all transactions since last sync for the address
-        var lastTransactionsRequest = new TransationsWithAddressRequestBuilder()
-            .WithAddress(this._accountService.UserProfile.PublicSigningAddress)
-            .WithLastHeightSynched(this._applicationSettingsManager.BlockchainInfo.LastHeightSynched)
-            .Build();
-
-        await this._tcpClientService.Send(lastTransactionsRequest.ToJson(sendTransactionJsonOptions));
-    }
-
-    public async Task HandleAsync(TransactionsWithAddressRespondedEvent message)
-    {
-        var sendTransactionJsonOptions = new JsonSerializerOptionsBuilder()
-            .WithTransactionBaseConverter(this._transactionBaseConverter)
-            .Build();
-
-        // HACK: [AboimPinto] For debug purposes
-        // Console.WriteLine($"--> {DateTime.UtcNow}: {message.TransactionsWithAddressResponse.Transactions.Count} until {message.TransactionsWithAddressResponse.BlockHeightSyncPoint}");
-
-        if (message.TransactionsWithAddressResponse != null && message.TransactionsWithAddressResponse.Transactions != null)
+        if (message.BlockchainHeightResponse.Height > this._blockchainInformation.BlockchainHeight)
         {
-            message.TransactionsWithAddressResponse.Transactions.ForEach(x => 
-            {
-                // CHECK [AboimPinto] 2024.02.13 Is LocalInformation and ApplicationSettingsManager and BlockchainInformation need to have the same information about LastHeightSynched?
-                this._localInformation.LastHeightSynched = x.BlockIndex;
-
-                var strategy = this._transactionHandlerStrategies.FirstOrDefault(s => s.CanHandle(x.SpecificTransaction));
-                strategy?.Handle(x.SpecificTransaction);
-            });
+            this._blockchainInformation.BlockchainHeight = message.BlockchainHeightResponse.Height;
         }
 
-        this._applicationSettingsManager.BlockchainInfo.LastHeightSynched = message.TransactionsWithAddressResponse.BlockHeightSyncPoint;
-
-        var BalanceByAddressRequest = new BalanceByAddressRequestBuilder()
+        var balanceByAddressRequest = new BalanceByAddressRequestBuilder()
             .WithAddress(this._accountService.UserProfile.PublicSigningAddress)
             .Build();
 
-        await this._tcpClientService.Send(BalanceByAddressRequest.ToJson(sendTransactionJsonOptions));
+        await this._tcpClientService.Send(balanceByAddressRequest.ToJson(sendTransactionJsonOptions));
     }
 
     public async Task HandleAsync(BalanceByAddressRespondedEvent message)
     {
         this._localInformation.Balance = message.BalanceByAddressResponse.Balance;
 
-        await Task.Delay(3000);
-
         var sendTransactionJsonOptions = new JsonSerializerOptionsBuilder()
             .WithTransactionBaseConverter(this._transactionBaseConverter)
             .Build();
 
-        var blockchainHeight = new BlockchainHeightRequest();
-        await this._tcpClientService.Send(blockchainHeight.ToJson(sendTransactionJsonOptions));
-
         var feedsForAddressRequest = new FeedsForAddressRequest
         {
             Address = this._accountService.UserProfile.PublicSigningAddress,
-            SinceBlockIndex = this._localInformation.LastHeightSynched
+            SinceBlockIndex = this._localInformation.LastFeedHeightSynched
         };
         await this._tcpClientService.Send(feedsForAddressRequest.ToJson(sendTransactionJsonOptions));
+        this._localInformation.LastFeedHeightSynched = this._localInformation.LastHeightSynched;
+
+        var blockchainHeight = new BlockchainHeightRequest();
+        await this._tcpClientService.Send(blockchainHeight.ToJson(sendTransactionJsonOptions));
+
+        await Task.Delay(3000);
     }
 
     public async Task HandleAsync(FeedTransactionHandledEvent message)
@@ -335,9 +306,9 @@ public class HushClientWorkflow :
             {
                 this._localInformation.SubscribedFeedsDefinitions.Add(item);
             }
-        }
 
-        await this._eventAggregator.PublishAsync(new RefreshFeedsEvent());
+            await this._eventAggregator.PublishAsync(new RefreshFeedsEvent());
+        }
     }
 
     private async Task OnBlockChainSynchedAsync(bool synched)

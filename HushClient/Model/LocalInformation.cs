@@ -11,6 +11,7 @@ public class LocalInformation : ReactiveObject
     private double _lastHeightSynched;
     private bool _isSynching;
     private double _balance;
+    private double _lastFeedHeightSynched = 0;
 
     public Subject<bool> IsSynchingStream { get; set; } = new Subject<bool>();
 
@@ -18,6 +19,12 @@ public class LocalInformation : ReactiveObject
     { 
         get => this._lastHeightSynched; 
         set => this.RaiseAndSetIfChanged(ref this._lastHeightSynched, value); 
+    }
+
+    public double LastFeedHeightSynched 
+    { 
+        get => this._lastFeedHeightSynched; 
+        set => this.RaiseAndSetIfChanged(ref this._lastFeedHeightSynched, value); 
     }
 
     public bool IsSynching 
