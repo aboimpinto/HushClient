@@ -65,15 +65,15 @@ public class BalanceViewModel :
 
         this.LocalInformation.SubscribedFeedsDefinitions.ForEach(x => 
         {
-                var personalFeed = new SubscribedFeed
-                {
-                    FeedId = x.FeedId,
-                    FeedType = x.FeedType,
-                    PublicAddressView = $"{this._accountService.UserProfile.ProfileName} (You)",
-                    PublicAddress = x.FeedParticipant
-                };
+            var personalFeed = new SubscribedFeed
+            {
+                FeedId = x.FeedId,
+                FeedType = x.FeedType,
+                PublicAddressView = $"{this._accountService.UserProfile.ProfileName} (You)",
+                PublicAddress = x.FeedParticipant
+            };
 
-                this.SubscribedFeeds.Add(personalFeed);
+            this.SubscribedFeeds.Add(personalFeed);
         });
 
         // this.LocalInformation.SubscribedFeeds.ForEach(x => 
