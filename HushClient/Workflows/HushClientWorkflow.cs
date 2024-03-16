@@ -243,6 +243,14 @@ public class HushClientWorkflow :
         await this._tcpClientService.Send(feedsForAddressRequest.ToJson(sendTransactionJsonOptions));
         this._localInformation.LastFeedHeightSynched = this._localInformation.LastHeightSynched;
 
+        var feedMessagesForAddressRequest = new FeedMessagesForAddressRequest
+        {
+            Address = this._accountService.UserProfile.PublicEncryptAddress,
+            SinceBlockIndex = this._localInformation.LastFeedMessageHeightSynched
+        };
+        await this._tcpClientService.Send(feedMessagesForAddressRequest.ToJson(sendTransactionJsonOptions));
+        this._localInformation.LastFeedMessageHeightSynched = this._localInformation.LastHeightSynched;
+
         await Task.Delay(3000);
 
         var blockchainHeight = new BlockchainHeightRequest();

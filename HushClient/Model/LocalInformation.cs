@@ -10,6 +10,7 @@ public class LocalInformation : ReactiveObject
     private double _lastHeightSynched;
     private double _balance;
     private double _lastFeedHeightSynched = 0;
+    private double _lastFeedMessageHeightSynched;
 
     public double LastHeightSynched 
     { 
@@ -21,6 +22,12 @@ public class LocalInformation : ReactiveObject
     { 
         get => this._lastFeedHeightSynched; 
         set => this.RaiseAndSetIfChanged(ref this._lastFeedHeightSynched, value); 
+    }
+
+    public double LastFeedMessageHeightSynched 
+    {
+        get => this._lastFeedMessageHeightSynched; 
+        set => this.RaiseAndSetIfChanged(ref this._lastFeedMessageHeightSynched, value); 
     }
 
     public double Balance 
