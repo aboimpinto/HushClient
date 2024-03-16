@@ -15,14 +15,11 @@ using HushEcosystem.Model.Builders;
 using HushEcosystem.Model.Blockchain;
 using HushEcosystem.Model.Rpc.Feeds;
 using HushEcosystem.Model.GlobalEvents;
-using System.Collections.Generic;
-using HushEcosystem.Model.Blockchain.TransactionHandlerStrategies;
 using System.Linq;
 using HushClient.GlobalEvents;
 using HushEcosystem.Model.Rpc.Profiles;
 using System.Text.Json;
 using HushClient.Account;
-using System.Threading;
 
 namespace HushClient.Workflows;
 
@@ -32,8 +29,6 @@ public class HushClientWorkflow :
     IHandleAsync<ProfileUserLoadedEvent>,
     IHandleAsync<BlockchainHeightRespondedEvent>,
     IHandleAsync<BalanceByAddressRespondedEvent>,
-    IHandleAsync<FeedTransactionHandledEvent>,
-    IHandleAsync<FeedMessageTransactionHandledEvent>,
     IHandleAsync<FeedsForAddressRespondedEvent>
 {
     private readonly IProfileWorkflow _profileWorkflow;
@@ -46,7 +41,6 @@ public class HushClientWorkflow :
     private readonly INavigationManager _navigationManager;
     private readonly IEventAggregator _eventAggregator;
     private readonly TransactionBaseConverter _transactionBaseConverter;
-    private readonly IEnumerable<ITransactionHandlerStrategy> _transactionHandlerStrategies;
     private readonly ILogger<HushClientWorkflow> _logger;
 
     private bool _ownFeedFound = false;
@@ -66,7 +60,6 @@ public class HushClientWorkflow :
         INavigationManager navigationManager,
         IEventAggregator eventAggregator,
         TransactionBaseConverter transactionBaseConverter,
-        IEnumerable<ITransactionHandlerStrategy> transactionHandlerStrategies,
         ILogger<HushClientWorkflow> logger)
     {
         this._profileWorkflow = profileWorkflow;
@@ -79,12 +72,9 @@ public class HushClientWorkflow :
         this._navigationManager = navigationManager;
         this._eventAggregator = eventAggregator;
         this._transactionBaseConverter = transactionBaseConverter;
-        this._transactionHandlerStrategies = transactionHandlerStrategies;
         this._logger = logger;
 
         this._eventAggregator.Subscribe(this);
-
-        this._localInformation.IsSynchingStream.Subscribe(async x => this.OnBlockChainSynchedAsync(x));
     }
 
     public async Task Start()
@@ -253,44 +243,44 @@ public class HushClientWorkflow :
         await this._tcpClientService.Send(feedsForAddressRequest.ToJson(sendTransactionJsonOptions));
         this._localInformation.LastFeedHeightSynched = this._localInformation.LastHeightSynched;
 
+        await Task.Delay(3000);
+
         var blockchainHeight = new BlockchainHeightRequest();
         await this._tcpClientService.Send(blockchainHeight.ToJson(sendTransactionJsonOptions));
-
-        await Task.Delay(3000);
     }
 
-    public async Task HandleAsync(FeedTransactionHandledEvent message)
-    {
-        Console.WriteLine("Handling new feed...");
+    // public async Task HandleAsync(FeedTransactionHandledEvent message)
+    // {
+    //     Console.WriteLine("Handling new feed...");
 
-        if (this._localInformation.SubscribedFeeds.Any(x => x.FeedId == message.Feed.FeedId))
-        {
-            Console.WriteLine("Feed already subscribed");
+    //     if (this._localInformation.SubscribedFeeds.Any(x => x.FeedId == message.Feed.FeedId))
+    //     {
+    //         Console.WriteLine("Feed already subscribed");
 
-            // Feed already exists
-            // TODO [AboimPinto] Need to implement in case the Feed already exists. 
-            // Maybe this should be Blockchain validation. Should now allow to create feeds that already exists.
-            return;
-        }
+    //         // Feed already exists
+    //         // TODO [AboimPinto] Need to implement in case the Feed already exists. 
+    //         // Maybe this should be Blockchain validation. Should now allow to create feeds that already exists.
+    //         return;
+    //     }
 
-        Console.WriteLine("Feed subscribed and RefreshFeedsEvent published");
-        this._localInformation.SubscribedFeeds.Add(message.Feed);
-        await this._eventAggregator.PublishAsync(new RefreshFeedsEvent());
-    }
+    //     Console.WriteLine("Feed subscribed and RefreshFeedsEvent published");
+    //     this._localInformation.SubscribedFeeds.Add(message.Feed);
+    //     await this._eventAggregator.PublishAsync(new RefreshFeedsEvent());
+    // }
 
-    public async Task HandleAsync(FeedMessageTransactionHandledEvent message)
-    {
-        if(this._localInformation.SubscribedFeedMessages.ContainsKey(message.FeedMessage.FeedId))
-        {
-            this._localInformation.SubscribedFeedMessages[message.FeedMessage.FeedId].Add(message.FeedMessage);
-        }
-        else
-        {
-            this._localInformation.SubscribedFeedMessages.Add(message.FeedMessage.FeedId, new List<FeedMessage> { message.FeedMessage });
-        }
+    // public async Task HandleAsync(FeedMessageTransactionHandledEvent message)
+    // {
+    //     if(this._localInformation.SubscribedFeedMessages.ContainsKey(message.FeedMessage.FeedId))
+    //     {
+    //         this._localInformation.SubscribedFeedMessages[message.FeedMessage.FeedId].Add(message.FeedMessage);
+    //     }
+    //     else
+    //     {
+    //         this._localInformation.SubscribedFeedMessages.Add(message.FeedMessage.FeedId, new List<FeedMessage> { message.FeedMessage });
+    //     }
 
-        await this._eventAggregator.PublishAsync(new RefreshFeedMessagesEvent(message.FeedMessage.FeedId));
-    }
+    //     await this._eventAggregator.PublishAsync(new RefreshFeedMessagesEvent(message.FeedMessage.FeedId));
+    // }
 
     public async Task HandleAsync(FeedsForAddressRespondedEvent message)
     {
@@ -306,44 +296,9 @@ public class HushClientWorkflow :
             {
                 this._localInformation.SubscribedFeedsDefinitions.Add(item);
             }
-
-            await this._eventAggregator.PublishAsync(new RefreshFeedsEvent());
         }
-    }
 
-    private async Task OnBlockChainSynchedAsync(bool synched)
-    {
-        if (synched && !this._ownFeedFound)
-        {
-            this._logger.LogInformation("Blockain synched...");
-
-            var hashTransactionJsonOptions = new JsonSerializerOptionsBuilder()
-                .WithTransactionBaseConverter(this._transactionBaseConverter)
-                .WithModifierExcludeSignature()
-                .WithModifierExcludeBlockIndex()
-                .WithModifierExcludeHash()
-                .Build();
-
-            var signTransactionJsonOptions = new JsonSerializerOptionsBuilder()
-                .WithTransactionBaseConverter(this._transactionBaseConverter)
-                .WithModifierExcludeSignature()
-                .WithModifierExcludeBlockIndex()
-                .Build();
-
-            var sendTransactionJsonOptions = new JsonSerializerOptionsBuilder()
-                .WithTransactionBaseConverter(this._transactionBaseConverter)
-                .WithModifierExcludeBlockIndex()
-                .Build();
-
-            // Create UserProfile
-            // await this.CreateUserProfileOnBlockchainAsync(hashTransactionJsonOptions, signTransactionJsonOptions, sendTransactionJsonOptions);
-
-            // Create Personal Feed
-            // await this.CreatePersonalFeedAsync(hashTransactionJsonOptions, signTransactionJsonOptions, sendTransactionJsonOptions);
-
-            // HACK [AboimPinto] 2024.03.04 Create a chat feed with the other user
-            // await this.CreateFeedWithAboimPintoAsync(hashTransactionJsonOptions, signTransactionJsonOptions, sendTransactionJsonOptions);
-        }
+        await this._eventAggregator.PublishAsync(new RefreshFeedsEvent());
     }
 
     private async Task CreatePersonalFeedAsync(
@@ -396,51 +351,5 @@ public class HushClientWorkflow :
 
         await this._tcpClientService.Send(userProfileRequest.ToJson(sendTransactionJsonOptions));
     }
-
-    // private async Task CreateFeedWithAboimPintoAsync(
-    //     JsonSerializerOptions hashTransactionJsonOptions, 
-    //     JsonSerializerOptions signTransactionJsonOptions, 
-    //     JsonSerializerOptions sendTransactionJsonOptions)
-    // {
-    //     var feedEncryptionKeys = new EncryptKeys();
-
-    //     // Add user to ChatFeed
-    //     var participantMeToFeed = new FeedBuilder()
-    //         .WithFeedOwner(this._accountService.UserProfile.PublicSigningAddress)
-    //         .WithFeedParticipantPublicAddress(this._accountService.UserProfile.PublicSigningAddress)
-    //         .WithFeedType(FeedTypeEnum.Chat)
-    //         .WithPublicEncriptAddress(feedEncryptionKeys.PublicKey)
-    //         .WithPrivateEncriptAddress(feedEncryptionKeys.PrivateKey)
-    //         .Build();
-
-    //     participantMeToFeed.HashObject(hashTransactionJsonOptions);
-    //     participantMeToFeed.Sign(this._accountService.UserProfile.PublicSigningAddress, signTransactionJsonOptions);
-
-    //     var meFeedRequest = new NewFeedRequest
-    //     {
-    //         Feed = participantMeToFeed
-    //     };
-
-    //     await this._tcpClientService.Send(meFeedRequest.ToJson(sendTransactionJsonOptions));
-
-    //     // Add user to ChatFeed
-    //     var participantOtherToFeed = new FeedBuilder()
-    //         .WithFeedOwner(this._accountService.UserProfile.PublicSigningAddress)
-    //         .WithFeedParticipantPublicAddress("04f505dab724c28db882376ca25d470cbabdc188f15a20a2083f49756bc00dd12ac44679afc9f4d658df07310f68191a633e31cd80ccf407a6a065d5b18874433f")
-    //         .WithFeedType(FeedTypeEnum.Chat)
-    //         .WithPublicEncriptAddress(feedEncryptionKeys.PublicKey)
-    //         .WithPrivateEncriptAddress(feedEncryptionKeys.PrivateKey)
-    //         .Build();
-
-    //     participantOtherToFeed.HashObject(hashTransactionJsonOptions);
-    //     participantOtherToFeed.Sign(this._accountService.UserProfile.PublicSigningAddress, signTransactionJsonOptions);
-
-    //     var otherFeedRequest = new NewFeedRequest
-    //     {
-    //         Feed = participantOtherToFeed
-    //     };
-
-    //     await this._tcpClientService.Send(otherFeedRequest.ToJson(sendTransactionJsonOptions));
-    // }
 }
 

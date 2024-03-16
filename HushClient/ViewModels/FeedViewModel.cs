@@ -6,11 +6,9 @@ using System.Threading.Tasks;
 using ReactiveUI;
 using Olimpo.NavigationManager;
 using Olimpo;
-using HushEcosystem.Model.GlobalEvents;
 using HushClient.Model;
 using HushClient.GlobalEvents;
 using HushClient.Workflows;
-using HushClient.ApplicationSettings;
 using HushClient.Account;
 
 namespace HushClient.ViewModels;
@@ -18,8 +16,7 @@ namespace HushClient.ViewModels;
 public class FeedViewModel : 
     ViewModelBase, 
     ILoadableViewModel,
-    IHandle<RefreshFeedMessagesEvent>,
-    IHandle<FeedMessageTransactionHandledEvent>
+    IHandle<RefreshFeedMessagesEvent>
 {
     private string _messageToSend;
     private SubscribedFeed _selectedFeed;
@@ -143,31 +140,31 @@ public class FeedViewModel :
     {
     }
 
-    public void Handle(FeedMessageTransactionHandledEvent message)
-    {
-        if (message.FeedMessage.FeedId != this._selectedFeed.FeedId)
-        {
-            return;
-        }
+    // public void Handle(FeedMessageTransactionHandledEvent message)
+    // {
+    //     if (message.FeedMessage.FeedId != this._selectedFeed.FeedId)
+    //     {
+    //         return;
+    //     }
 
-        // Confirm the message that should be already in the list
-        var messageToConfirm = this.FeedMessages.FirstOrDefault(x => x.FeedMessageId == message.FeedMessage.FeedMessageId);
-        if (messageToConfirm != null)
-        {
-            messageToConfirm.IsFeedMessageConfirmed = true;    
-        }
-        else
-        {
-            // TODO [AboimPinto] if the total of messages ir greater than 100, remove the first one
-            this.FeedMessages.Add(
-                message.FeedMessage
-                    .ToFeedMessageUI(false)
-                    .SetOwnMessage(this._accountService.UserProfile.PublicSigningAddress)
-                    .DecryptFeedMessage(this._accountService.UserProfile.PrivateEncryptKey));
-        }
+    //     // Confirm the message that should be already in the list
+    //     var messageToConfirm = this.FeedMessages.FirstOrDefault(x => x.FeedMessageId == message.FeedMessage.FeedMessageId);
+    //     if (messageToConfirm != null)
+    //     {
+    //         messageToConfirm.IsFeedMessageConfirmed = true;    
+    //     }
+    //     else
+    //     {
+    //         // TODO [AboimPinto] if the total of messages ir greater than 100, remove the first one
+    //         this.FeedMessages.Add(
+    //             message.FeedMessage
+    //                 .ToFeedMessageUI(false)
+    //                 .SetOwnMessage(this._accountService.UserProfile.PublicSigningAddress)
+    //                 .DecryptFeedMessage(this._accountService.UserProfile.PrivateEncryptKey));
+    //     }
 
-        this.ScrollMessageToEnd = true;
-    }
+    //     this.ScrollMessageToEnd = true;
+    // }
 
     private string CalculateFeedName(SubscribedFeed selectedFeed)
     {
