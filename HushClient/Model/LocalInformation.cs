@@ -36,9 +36,7 @@ public class LocalInformation : ReactiveObject
         set => this.RaiseAndSetIfChanged(ref this._balance, value); 
     }
 
-    public IList<Feed> SubscribedFeeds { get; set; } = [];
-
-    public IList<FeedDefinition> SubscribedFeedsDefinitions { get; set; } = [];
+    public IList<IFeedDefinition> SubscribedFeedsDefinitions { get; set; } = [];
 
     public Dictionary<string, IList<FeedMessage>> SubscribedFeedMessages { get; set; } = [];
 }

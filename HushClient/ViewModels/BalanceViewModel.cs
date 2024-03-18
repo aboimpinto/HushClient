@@ -8,6 +8,7 @@ using HushClient.Account;
 using HushClient.GlobalEvents;
 using HushClient.Model;
 using HushEcosystem.Model.Blockchain;
+using HushEcosystem.Model.Rpc.Feeds;
 using Olimpo;
 using Olimpo.NavigationManager;
 using ReactiveUI;
@@ -63,30 +64,50 @@ public class BalanceViewModel :
     {
         Console.WriteLine("Refreshing feeds...");
 
-        this.LocalInformation.SubscribedFeedsDefinitions.ForEach(x => 
+        this.LocalInformation.SubscribedFeedMessages.Values.ForEach(x => 
         {
-            var existingFeed = this.SubscribedFeeds.SingleOrDefault(subscription => subscription.PublicAddress == x.FeedParticipant);
-            if (existingFeed == null)
+            if (x is PersonalFeedDefinition personalFeedDefinition)
             {
-                var personalFeed = new SubscribedFeed
+                var existingFeed = this.SubscribedFeeds.SingleOrDefault(subscription => subscription.FeedType == FeedTypeEnum.Personal);
+                if (existingFeed == null)
                 {
-                    FeedId = x.FeedId,
-                    FeedType = x.FeedType,
-                    PublicAddressView = $"{this._accountService.UserProfile.ProfileName} (You)",
-                    PublicAddress = x.FeedParticipant
-                };
+                    var personalFeed = new SubscribedFeed
+                    {
+                        FeedId = personalFeedDefinition.FeedId,
+                        FeedType = personalFeedDefinition.FeedType,
+                        PublicAddressView = $"{this._accountService.UserProfile.ProfileName} (You)",
+                        PublicAddress = personalFeedDefinition.FeedOwner
+                    };
 
-                this.SubscribedFeeds.Add(personalFeed);
+                    this.SubscribedFeeds.Add(personalFeed);
+                }
+                else
+                {
+                    existingFeed.PublicAddressView = $"{this._accountService.UserProfile.ProfileName} (You)";
+                }
             }
-            else
-            {
-                existingFeed.PublicAddressView = x.FeedTitle;
-            }
-
-            
-
-            
         });
+
+        // this.LocalInformation.SubscribedFeedsDefinitions.ForEach(x => 
+        // {
+        //     var existingFeed = this.SubscribedFeeds.SingleOrDefault(subscription => subscription.PublicAddress == x.FeedParticipant);
+        //     if (existingFeed == null)
+        //     {
+        //         var personalFeed = new SubscribedFeed
+        //         {
+        //             FeedId = x.FeedId,
+        //             FeedType = x.FeedType,
+        //             PublicAddressView = $"{this._accountService.UserProfile.ProfileName} (You)",
+        //             PublicAddress = x.
+        //         };
+
+        //         this.SubscribedFeeds.Add(personalFeed);
+        //     }
+        //     else
+        //     {
+        //         existingFeed.PublicAddressView = x.FeedTitle;
+        //     }
+        // });
 
         // this.LocalInformation.SubscribedFeeds.ForEach(x => 
         // {
