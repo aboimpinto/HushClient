@@ -20,6 +20,7 @@ using HushClient.GlobalEvents;
 using HushEcosystem.Model.Rpc.Profiles;
 using System.Text.Json;
 using HushClient.Account;
+using Grpc.Net.Client;
 
 namespace HushClient.Workflows;
 
@@ -87,6 +88,19 @@ public class HushClientWorkflow :
         });
 
         await this._bootstrapperManager.Start();
+
+        try
+        {
+            using var channel = GrpcChannel.ForAddress("http://localhost:5000");
+            var client = new Greeter.GreeterClient(channel);
+            var reply = await client.SayHelloAsync(new HelloRequest { Name = "Paulo Aboim Pinto" });
+            Console.WriteLine("Greeting: " + reply.Message);
+        }
+        catch(Exception ex)
+        {
+            
+        }
+        
 
         await this._navigationManager.NavigateAsync("BalanceViewModel");
     }

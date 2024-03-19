@@ -17,6 +17,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Protobuf Include="Protos\greet.proto" GrpcServices="Client" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="$(AvaloniaVersion)" />
@@ -25,6 +29,12 @@
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
     <PackageReference Include="Avalonia.Xaml.Interactions" Version="$(AvaloniaVersion)" />
     <PackageReference Include="Avalonia.Xaml.Interactivity" Version="$(AvaloniaVersion)" />
+    <PackageReference Include="Google.Protobuf" Version="3.26.0" />
+    <PackageReference Include="Grpc.Net.Client" Version="2.61.0" />
+    <PackageReference Include="Grpc.Tools" Version="2.62.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
