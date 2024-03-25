@@ -1,14 +1,13 @@
 using System.Threading.Tasks;
 using HushClient.Account;
 using HushClient.Account.Model;
-using HushClient.GlobalEvents;
+using HushClient.Services;
 using HushClient.TcpClient;
 using HushEcosystem.Model;
 using HushEcosystem.Model.Builders;
 using HushEcosystem.Model.GlobalEvents;
 using HushEcosystem.Model.Rpc.Profiles;
 using Olimpo;
-using Org.BouncyCastle.Asn1.Utilities;
 
 namespace HushClient.Workflows;
 
@@ -18,16 +17,19 @@ public class ProfileWorkflow :
     IHandleAsync<UserProfileTransactionHandledEvent>
 {
     private readonly IAccountService _accountService;
+    private readonly IHushProfileService _hushProfileService;
     private readonly IEventAggregator _eventAggregator;
     private readonly ITcpClientService _tcpClientService;
 
     public ProfileWorkflow(
         IAccountService accountService, 
+        IHushProfileService hushProfileService,
         TransactionBaseConverter transactionBaseConverter,
         IEventAggregator eventAggregator,
         ITcpClientService tcpClientService) : base(transactionBaseConverter)
     {
         this._accountService = accountService;
+        this._hushProfileService = hushProfileService;
         this._eventAggregator = eventAggregator;
         this._tcpClientService = tcpClientService;
     }
@@ -57,7 +59,9 @@ public class ProfileWorkflow :
     {
         await this._accountService.LoadAccountsAsync();
 
-        await this._eventAggregator.PublishAsync(new ProfileUserLoadedEvent());
+        await this._hushProfileService.LoadProfileAsync(this._accountService.UserProfile.PublicSigningAddress);
+
+        // await this._eventAggregator.PublishAsync(new ProfileUserLoadedEvent());
     }
 
     public async Task HandleAsync(UserProfileTransactionHandledEvent message)

@@ -4,6 +4,7 @@ using Olimpo;
 using Olimpo.NavigationManager;
 using HushClient.Workflows;
 using HushClient.Model;
+using HushClient.Services;
 
 
 namespace HushClient;
@@ -15,6 +16,8 @@ public static class ServiceCollectionExtensions
         serviceCollection.AddSingleton<BlockchainInformation>();
         serviceCollection.AddSingleton<LocalInformation>();
 
+        serviceCollection.AddSingleton<IHushProfileService, HushProfileService>();
+        serviceCollection.AddSingleton<IHushBlockchainService, HushBlockchainService>();
 
         serviceCollection.AddSingleton<IHushClientWorkflow, HushClientWorkflow>();
         serviceCollection.AddSingleton<IProfileWorkflow, ProfileWorkflow>();

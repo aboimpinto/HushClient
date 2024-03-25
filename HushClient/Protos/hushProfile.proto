@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+option csharp_namespace = "HushClient";
+
+package rpcHush;
+
+service HushProfile {
+  rpc SetProfile (SetProfileRequest) returns (SetProfileReply);
+  rpc LoadProfile (LoadProfileRequest) returns (LoadProfileReply);
+}
+
+message SetProfileRequest {
+  string Name = 1;
+}
+
+message SetProfileReply {
+  string Message = 1;
+}
+
+message LoadProfileRequest {
+  string ProfilePublicKey = 1;
+}
+
+message LoadProfileReply {
+
+  message UserProfile {
+    string UserPublicSigningAddress = 1;
+    string UserPublicEncryptAddress = 2;
+    string UserName = 3;
+    bool IsPublic = 4;
+  }
+
+  UserProfile Profile = 1;
+}

@@ -3,6 +3,7 @@ using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
 using HushClient.Account.Model;
+using Olimpo;
 using Olimpo.NavigationManager;
 
 namespace HushClient.Account;
@@ -11,13 +12,16 @@ public class AccountService : IAccountService
 {
     private string _accountsFilePath;
     private readonly INavigationManager _navigationManager;
+    private readonly IEventAggregator _eventAggregator;
 
     public UserProfile UserProfile { get; private set; }
 
     public AccountService(
-        INavigationManager navigationManager)
+        INavigationManager navigationManager,
+        IEventAggregator eventAggregator)
     {
         this._navigationManager = navigationManager;
+        this._eventAggregator = eventAggregator;
 
         this._accountsFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Accounts.json");
     }
@@ -32,14 +36,17 @@ public class AccountService : IAccountService
 
                 if (userProfile != null)
                 {
+                    
+
                     this.UserProfile = userProfile;
+
+                    await this._eventAggregator.PublishAsync(new ProfileUserLoadedEvent());
                 }
                 else
                 {
                     await this._navigationManager.NavigateAsync("NewAccountViewModel");
                 }
             }
-
         }
         else
         {

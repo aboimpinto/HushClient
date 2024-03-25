@@ -43,10 +43,8 @@ public class MainViewModel :
         this._navigationManager.RegisterNavigatableView(this);
     }
 
-    public Task LoadAsync(IDictionary<string, object>? parameters = null)
+    public async Task LoadAsync(IDictionary<string, object>? parameters = null)
     {
-        this._hushClientWorkflow.Start();
-        
-        return Task.CompletedTask;
+        await this._hushClientWorkflow.Start();
     }
 }

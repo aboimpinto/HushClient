@@ -21,6 +21,8 @@ using HushEcosystem.Model.Rpc.Profiles;
 using System.Text.Json;
 using HushClient.Account;
 using Grpc.Net.Client;
+using HushClient.Services;
+using System.Reactive.Linq;
 
 namespace HushClient.Workflows;
 
@@ -35,6 +37,8 @@ public class HushClientWorkflow :
     private readonly IProfileWorkflow _profileWorkflow;
     private readonly IApplicationSettingsManager _applicationSettingsManager;
     private readonly IAccountService _accountService;
+    private readonly IHushProfileService _hushProfileService;
+    private readonly IHushBlockchainService _hushBlockchainService;
     private readonly ITcpClientService _tcpClientService;
     private readonly IBootstrapperManager _bootstrapperManager;
     private readonly BlockchainInformation _blockchainInformation;
@@ -54,6 +58,8 @@ public class HushClientWorkflow :
         IProfileWorkflow profileWorkflow,
         IApplicationSettingsManager applicationSettingsManager,
         IAccountService accountService,
+        IHushProfileService hushProfileService,
+        IHushBlockchainService hushBlockchainService,
         ITcpClientService tcpClientService,
         IBootstrapperManager bootstrapperManager,
         BlockchainInformation blockchainInformation,
@@ -66,6 +72,8 @@ public class HushClientWorkflow :
         this._profileWorkflow = profileWorkflow;
         this._applicationSettingsManager = applicationSettingsManager;
         this._accountService = accountService;
+        this._hushProfileService = hushProfileService;
+        this._hushBlockchainService = hushBlockchainService;
         this._tcpClientService = tcpClientService;
         this._bootstrapperManager = bootstrapperManager;
         this._blockchainInformation = blockchainInformation;
@@ -82,27 +90,42 @@ public class HushClientWorkflow :
     {
         this._logger.LogInformation("Starting HushClientWorkflow...");
 
+        // try
+        // {
+        //     using var channel = GrpcChannel.ForAddress("http://localhost:5000");
+
+        //     var client = new HushProfile.HushProfileClient(channel);
+        //     var reply = await client.SetProfileAsync(new SetProfileRequest { Name = "Paulo Aboim Pinto" });
+        //     Console.WriteLine("Greeting: " + reply.Message);
+
+        //     // var client = new Greeter.GreeterClient(channel);
+        //     // var reply = await client.SayHelloAsync(new HelloRequest { Name = "Paulo Aboim Pinto" });
+        //     // Console.WriteLine("Greeting: " + reply.Message);
+        // }
+        // catch(Exception ex)
+        // {
+        //     Console.WriteLine(ex.Message);
+        // }
+
         this._bootstrapperManager.AllModulesBootstrapped.Subscribe(async x => 
         {
-            await this.InitiateHandShake();
+            // await this.InitiateHandShake();
+
+            // await this._hushProfileService.SetProfileAsync();
+
+            this._blockchainInformation.BlockchainHeight = await this._hushBlockchainService.GetBlockchainHeightAsync();            
+
+            Observable
+                .Interval(TimeSpan.FromSeconds(3))
+                .Subscribe(async x => 
+                {
+                    this._blockchainInformation.BlockchainHeight = await this._hushBlockchainService.GetBlockchainHeightAsync();
+                });
+
+            await this._profileWorkflow.LoadAccountsAsync();
         });
 
         await this._bootstrapperManager.Start();
-
-        try
-        {
-            using var channel = GrpcChannel.ForAddress("http://localhost:5000");
-            var client = new Greeter.GreeterClient(channel);
-            var reply = await client.SayHelloAsync(new HelloRequest { Name = "Paulo Aboim Pinto" });
-            Console.WriteLine("Greeting: " + reply.Message);
-        }
-        catch(Exception ex)
-        {
-            
-        }
-        
-
-        await this._navigationManager.NavigateAsync("BalanceViewModel");
     }
 
     public async Task<FeedMessage?> SendMessage(string feedId, string message)
@@ -181,46 +204,53 @@ public class HushClientWorkflow :
 
     public async Task HandleAsync(ProfileUserLoadedEvent message)
     {
-        var sendBlockchainHeightRequestTransactionJsonOptions = new JsonSerializerOptionsBuilder()
-            .WithTransactionBaseConverter(this._transactionBaseConverter)
-            .Build();
+        await this._navigationManager.NavigateAsync("BalanceViewModel");
 
-        var blockchainHeight = new BlockchainHeightRequest();
-        await this._tcpClientService.Send(blockchainHeight.ToJson(sendBlockchainHeightRequestTransactionJsonOptions));
+        // await this._hushProfileService.SetProfileAsync();
 
-        if (!this._isProfileLoaded)
-        {
-            this._isProfileLoaded = true;
 
-            // await this._navigationManager.NavigateAsync("BalanceViewModel");
 
-            var hashTransactionJsonOptions = new JsonSerializerOptionsBuilder()
-                .WithTransactionBaseConverter(this._transactionBaseConverter)
-                .WithModifierExcludeSignature()
-                .WithModifierExcludeBlockIndex()
-                .WithModifierExcludeHash()
-                .Build();
 
-            var signTransactionJsonOptions = new JsonSerializerOptionsBuilder()
-                .WithTransactionBaseConverter(this._transactionBaseConverter)
-                .WithModifierExcludeSignature()
-                .WithModifierExcludeBlockIndex()
-                .Build();
+        // var sendBlockchainHeightRequestTransactionJsonOptions = new JsonSerializerOptionsBuilder()
+        //     .WithTransactionBaseConverter(this._transactionBaseConverter)
+        //     .Build();
 
-            var sendTransactionJsonOptions = new JsonSerializerOptionsBuilder()
-                .WithTransactionBaseConverter(this._transactionBaseConverter)
-                .WithModifierExcludeBlockIndex()
-                .Build();
+        // var blockchainHeight = new BlockchainHeightRequest();
+        // await this._tcpClientService.Send(blockchainHeight.ToJson(sendBlockchainHeightRequestTransactionJsonOptions));
 
-            // Create UserProfile
-            await this.CreateUserProfileOnBlockchainAsync(hashTransactionJsonOptions, signTransactionJsonOptions, sendTransactionJsonOptions);
+        // if (!this._isProfileLoaded)
+        // {
+        //     this._isProfileLoaded = true;
 
-            // Create Personal Feed
-            await this.CreatePersonalFeedAsync(hashTransactionJsonOptions, signTransactionJsonOptions, sendTransactionJsonOptions);
+        //     // await this._navigationManager.NavigateAsync("BalanceViewModel");
+
+        //     var hashTransactionJsonOptions = new JsonSerializerOptionsBuilder()
+        //         .WithTransactionBaseConverter(this._transactionBaseConverter)
+        //         .WithModifierExcludeSignature()
+        //         .WithModifierExcludeBlockIndex()
+        //         .WithModifierExcludeHash()
+        //         .Build();
+
+        //     var signTransactionJsonOptions = new JsonSerializerOptionsBuilder()
+        //         .WithTransactionBaseConverter(this._transactionBaseConverter)
+        //         .WithModifierExcludeSignature()
+        //         .WithModifierExcludeBlockIndex()
+        //         .Build();
+
+        //     var sendTransactionJsonOptions = new JsonSerializerOptionsBuilder()
+        //         .WithTransactionBaseConverter(this._transactionBaseConverter)
+        //         .WithModifierExcludeBlockIndex()
+        //         .Build();
+
+        //     // Create UserProfile
+        //     await this.CreateUserProfileOnBlockchainAsync(hashTransactionJsonOptions, signTransactionJsonOptions, sendTransactionJsonOptions);
+
+        //     // Create Personal Feed
+        //     await this.CreatePersonalFeedAsync(hashTransactionJsonOptions, signTransactionJsonOptions, sendTransactionJsonOptions);
 
             // HACK [AboimPinto] 2024.03.04 Create a chat feed with the other user
             // await this.CreateFeedWithAboimPintoAsync(hashTransactionJsonOptions, signTransactionJsonOptions, sendTransactionJsonOptions);
-        }
+        // }
     }
 
     public async Task HandleAsync(BlockchainHeightRespondedEvent message)
